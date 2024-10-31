@@ -63,7 +63,7 @@ set_and_export_env_var "POSTGRES_SCHEMA" "labs"
 set_and_export_env_var "POSTGRES_PASSWORD" "$(generate_random_string 16)"
 # The url is liquid-labs-postgres, which must be the same as the service
 # name in the docker compose file.
-set_and_export_env_var "DATABASE_URL" "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@liquid-labs-postgres:$POSTGRES_PORT/$POSTGRES_DB" true
+set_and_export_env_var "DATABASE_URL" "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@liquid-labs-postgres:5432/$POSTGRES_DB" true
 
 if ! docker volume inspect postgres_data > /dev/null 2>&1; then
   echo "Creating Docker volume: postgres_data"

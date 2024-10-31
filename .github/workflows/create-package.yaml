@@ -1,0 +1,27 @@
+name: Package on-prem stack
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get short SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Upload on-prem stack package
+        uses: actions/upload-artifact@v4
+        with:
+          name: on-prem-stack-${{ steps.vars.outputs.sha_short }}
+          path: ./
+          overwrite: true
+          retention-days: 10
+          if-no-files-found: error

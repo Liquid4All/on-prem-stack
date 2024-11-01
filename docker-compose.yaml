@@ -39,7 +39,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - API_SECRET=${API_SECRET}
       - NVIDIA_VISIBLE_DEVICES=all
-      - POSTGRES_SCHEMA=${POSTGRES_SCHEMA}
+      - POSTGRES_SCHEMA=labs
       - DATABASE_URL=${DATABASE_URL}
     ports:
       - "8000:8000"

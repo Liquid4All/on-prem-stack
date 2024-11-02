@@ -8,7 +8,29 @@ services:
   liquid-labs-vllm:
     image: liquidai/liquid-labs-vllm:${STACK_VERSION}
     container_name: ${MODEL_NAME}
-    command: --model /model --port 9000
+    command:
+      - --model
+      - /model
+      - --port
+      - "9000"
+      - --max-logprobs
+      - "0"
+      - --dtype
+      - bfloat16
+      - --device
+      - cuda
+      - --enable-chunked-prefill
+      - "False"
+      - --tensor_parallel_size
+      - "1"
+      - --gpu-memory-utilization
+      - "0.70"
+      - --max-model-len
+      - "65536"
+      - --max-num-seqs
+      - "800"
+      - --max-seq-len-to-capture
+      - "65536"
     depends_on:
       - liquid-labs-model-volume
     # This is equivalent to "runtime: nvidia", but does not require

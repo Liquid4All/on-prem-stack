@@ -14,6 +14,13 @@
 
 ## Prerequisites
 - Docker
+  - If the current user has no permission to run Docker commands, run the following commands:
+  ```bash
+  sudo usermod -aG docker $USER
+  sudo systemctl restart docker
+  # verify the permission
+  ls -l /var/run/docker.sock
+  ```
 - [Docker compose plugin](https://docs.docker.com/compose/install/)
   - Run `docker compose version` to verify installation.
 - [Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)

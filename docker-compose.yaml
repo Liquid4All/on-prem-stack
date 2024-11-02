@@ -24,11 +24,11 @@ services:
       - --tensor_parallel_size
       - "1"
       - --gpu-memory-utilization
-      - "0.75"
+      - "0.70"
       - --max-model-len
       - "65536"
       - --max-num-seqs
-      - "1000"
+      - "800"
       - --max-seq-len-to-capture
       - "65536"
     depends_on:

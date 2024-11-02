@@ -63,3 +63,12 @@ To update the stack, change `STACK_VERSION` and `MODEL_IMAGE` in the `.env` file
 ```bash
 ./shutdown.sh
 ```
+
+## Cloudflare tunnel
+
+To expose the web UI through Cloudflare tunnel, the default script given by Cloudflare does not work. Run the following command with `--network` and `--protocol h2mux` options instead.
+
+```bash
+# add --protocol h2mux
+docker run -d --network liquid_labs_network cloudflare/cloudflared:latest tunnel --no-autoupdate run --protocol h2mux --token <tunnel-token>
+```

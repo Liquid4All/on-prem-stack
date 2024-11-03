@@ -28,7 +28,7 @@ services:
       - --max-model-len
       - "65536"
       - --max-num-seqs
-      - "800"
+      - "750"
       - --max-seq-len-to-capture
       - "65536"
     depends_on:

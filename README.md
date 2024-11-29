@@ -13,6 +13,10 @@
 | `test-api.sh` | Script to test the inference server API |
 
 ## Prerequisites
+- Nvidia and CUDA driver
+  - Run `nvidia-smi` to verify the driver installation.
+  - May need to disable secure boot in BIOS.
+  - Currently, Liquid cannot provide technical support for driver or CUDA installation.
 - Docker
   - If the current user has no permission to run Docker commands, run the following commands:
   ```bash

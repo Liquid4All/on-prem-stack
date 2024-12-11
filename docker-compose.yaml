@@ -26,11 +26,11 @@ services:
       - --gpu-memory-utilization
       - "0.70"
       - --max-model-len
-      - "32768"
+      - "2048"
       - --max-num-seqs
-      - "750"
+      - "100"
       - --max-seq-len-to-capture
-      - "32768"
+      - "2048"
     depends_on:
       - liquid-labs-model-volume
     # This is equivalent to "runtime: nvidia", but does not require

@@ -53,6 +53,15 @@ When running for subsequent times, the launch script will consume the environmen
 
 Two environment variables are constructed from other variables: `DATABASE_URL` and `MODEL_NAME`. Please do not modify them directly in the `.env` file.
 
+## Models
+
+Currently, each on-prem stack can only run one model at a time. The launch script runs `lfm-3b-jp` by default. To switch models, change `MODEL_NAME` and `MODEL_IMAGE` in the `.env` file according to table below, and run `./launch.sh` again.
+
+| Model Name | Model Image |
+| --- | --- |
+| `lfm-3b-jp` | `liquidai/lfm-3b-jp:0.0.1-e` |
+| `lfm-3b-ichikara` | `liquidai/lfm-3b-ichikara:0.0.1-e` |
+
 ## Update
 
 To update the stack, change `STACK_VERSION` and `MODEL_IMAGE` in the `.env` file and run the launch script again.

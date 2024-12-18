@@ -24,7 +24,7 @@ services:
       - --tensor_parallel_size
       - "1"
       - --gpu-memory-utilization
-      - "0.70"
+      - "0.6"
       - --max-model-len
       - "32768"
       - --max-num-seqs
@@ -63,6 +63,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - POSTGRES_SCHEMA=labs
       - DATABASE_URL=${DATABASE_URL}
+      - DEFAULT_SYSTEM_PROMPT=${DEFAULT_SYSTEM_PROMPT}
     ports:
       - "8000:8000"
     networks:

@@ -63,6 +63,7 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - POSTGRES_SCHEMA=labs
       - DATABASE_URL=${DATABASE_URL}
+      - DEFAULT_SYSTEM_PROMPT=${DEFAULT_SYSTEM_PROMPT}
     ports:
       - "8000:8000"
     networks:

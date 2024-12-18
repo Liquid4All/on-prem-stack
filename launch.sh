@@ -64,6 +64,7 @@ set_and_export_env_var "POSTGRES_PASSWORD" "$(generate_random_string 16)"
 # The url is liquid-labs-postgres, which must be the same as the service
 # name in the docker compose file.
 set_and_export_env_var "DATABASE_URL" "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@liquid-labs-postgres:5432/$POSTGRES_DB" true
+set_and_export_env_var "DEFAULT_SYSTEM_PROMPT" "以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。"
 
 if ! docker volume inspect postgres_data > /dev/null 2>&1; then
   echo "Creating Docker volume: postgres_data"

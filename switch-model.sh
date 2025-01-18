@@ -37,7 +37,7 @@ else
 fi
 
 # Read and parse models from yaml
-echo -e "\nAvailable models to run:"
+echo -e "\nYou can switch to one of the following models:"
 readarray -t models < <(parse_yaml "models.yaml")
 
 # Filter out running container and display options

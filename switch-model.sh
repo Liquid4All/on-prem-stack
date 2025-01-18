@@ -3,7 +3,7 @@
 # Function to read yaml file
 parse_yaml() {
     local yaml_file=$1
-    python3 -c '
+    python -c '
 import yaml
 import sys
 
@@ -31,13 +31,13 @@ model_names=$(parse_yaml "models.yaml" | cut -f1 | paste -sd "|" -)
 running_container=$(docker ps --format '{{.Names}}' | grep -E "(${model_names})")
 
 if [ -n "$running_container" ]; then
-    echo "Currently running container: $running_container"
+    echo "Currently running model: $running_container"
 else
-    echo "No matching containers currently running"
+    echo "No model is currently running"
 fi
 
 # Read and parse models from yaml
-echo -e "\nAvailable models:"
+echo -e "\nAvailable models to run:"
 readarray -t models < <(parse_yaml "models.yaml")
 
 # Filter out running container and display options

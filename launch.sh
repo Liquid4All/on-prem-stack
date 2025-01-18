@@ -53,7 +53,7 @@ set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "STACK_VERSION" "2b3f969864"
 set_and_export_env_var "MODEL_IMAGE" "liquidai/lfm-3be:0.0.6"
 
-MODEL_NAME=Liquid-$(extract_model_name "$MODEL_IMAGE")
+MODEL_NAME=lfm-$(extract_model_name "$MODEL_IMAGE")
 set_and_export_env_var "MODEL_NAME" "$MODEL_NAME" true
 
 set_and_export_env_var "POSTGRES_DB" "liquid_labs"

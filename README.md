@@ -11,6 +11,8 @@
 | `shutdown.sh` | Script to shut down the stack |
 | `connect-db.sh` | Script to connect to the Postgres database |
 | `test-api.sh` | Script to test the inference server API |
+| `models.yaml` | Available models to run |
+| `switch-model.sh` | Script to switch between available models |
 
 ## Prerequisites
 - Nvidia and CUDA driver
@@ -55,12 +57,7 @@ Two environment variables are constructed from other variables: `DATABASE_URL` a
 
 ## Models
 
-Currently, each on-prem stack can only run one model at a time. The launch script runs `lfm-3b-jp` by default. To switch models, change `MODEL_IMAGE` in the `.env` file according to table below, and run `./launch.sh` again.
-
-| Model Image |
-| --- |
-| `liquidai/lfm-3b-jp:0.0.1-e` |
-| `liquidai/lfm-3b-ichikara:0.0.1-e` |
+Currently, each on-prem stack can only run one model at a time. The launch script runs `lfm-3b-jp` by default. To switch models, run `.switch-model.sh` and select the desired model to run. The script will then stop the current model and start the newly chosen model.
 
 ## Update
 

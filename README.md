@@ -11,6 +11,8 @@
 | `shutdown.sh` | Script to shut down the stack |
 | `connect-db.sh` | Script to connect to the Postgres database |
 | `test-api.sh` | Script to test the inference server API |
+| `models.yaml` | Available models to run |
+| `switch-model.sh` | Script to switch between available models |
 
 ## Prerequisites
 - Nvidia and CUDA driver
@@ -52,6 +54,10 @@ When running for the first time, the launch script will do the following:
 When running for subsequent times, the launch script will consume the environment variables from the `.env` file and restart the stack.
 
 Two environment variables are constructed from other variables: `DATABASE_URL` and `MODEL_NAME`. Please do not modify them directly in the `.env` file.
+
+## Models
+
+Currently, each on-prem stack can only run one model at a time. The launch script runs `lfm-3b-jp` by default. To switch models, run `.switch-model.sh` and select the desired model to run. The script will then stop the current model and start the newly chosen model.
 
 ## Update
 

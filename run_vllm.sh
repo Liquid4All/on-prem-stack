@@ -22,10 +22,12 @@ usage() {
     echo "  --model-name     Name for the Docker container"
     echo "  --hf-model-path  Hugging Face model ID (e.g., 'meta-llama/Llama-2-7b-chat-hf')"
     echo "  --port           Port to expose locally (default: 9000)"
+    echo "  --gpu            Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
     exit 1
 }
 
 PORT=9000
+GPU="all"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -39,6 +41,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --port)
             PORT="$2"
+            shift 2
+            ;;
+        --gpu)
+            GPU="$2"
             shift 2
             ;;
         *)
@@ -56,21 +62,24 @@ fi
 echo "Launching vLLM container with model: $HF_MODEL_PATH"
 docker run -d \
     --name "$MODEL_NAME" \
-    --gpus all \
+    --gpus "device=$GPU" \
     -p $PORT:8000 \
     --health-cmd="curl --fail http://localhost:8000/health || exit 1" \
     --health-interval=30s \
     vllm/vllm-openai:latest \
     --host 0.0.0.0 \
+    --port 8000 \
     --model "$HF_MODEL_PATH" \
     --tensor-parallel-size 1
 
 if [ $? -eq 0 ]; then
     echo "Container '$MODEL_NAME' started successfully"
     echo "vLLM API is accessible at http://localhost:$PORT"
-    echo "To check container logs: docker logs $MODEL_NAME"
+    echo "To check container logs: docker logs -f $MODEL_NAME"
     echo "To stop container: docker stop $MODEL_NAME"
 else
     echo "Failed to start container"
+    echo "Please check the container logs for more information:"
+    echo "  docker logs $MODEL_NAME"
     exit 1
 fi

@@ -60,7 +60,7 @@ docker run -d \
     -p $PORT:8000 \
     --health-cmd="curl --fail http://localhost:8000/health || exit 1" \
     --health-interval=30s \
-    ghcr.io/vllm-project/vllm \
+    vllm/vllm-openai:latest \
     --host 0.0.0.0 \
     --model "$HF_MODEL_PATH" \
     --tensor-parallel-size 1

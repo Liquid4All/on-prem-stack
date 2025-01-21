@@ -1,18 +1,22 @@
 #!/bin/bash
 
 usage() {
-    echo "Usage: $0 --model-name <container_name> --model-path <path_to_model> [--port <port_number>]"
+    echo "Usage: $0 --model-name <container_name> --model-path <path_to_model> [--port <port_number>] [--gpu-memory-utilization <0.60>] [--max-num-seqs <600>]"
     echo
     echo "Arguments:"
-    echo "  --model-name  Name for the Docker container"
-    echo "  --model-path  Path to the model checkpoint (local directory)"
-    echo "  --port        Port to expose locally (default: 9000)"
-    echo "  --gpu         Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
+    echo "  --model-name              Name for the Docker container"
+    echo "  --model-path              Path to the model checkpoint (local directory)"
+    echo "  --port                    Port to expose locally (default: 9000)"
+    echo "  --gpu                     Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
+    echo "  --gpu-memory-utilization  Fraction of GPU memory to use (default: 0.60)"
+    echo "  --max-num-seqs            Maximum number of sequences to cache (default: 600)"
     exit 1
 }
 
 PORT=9000
 GPU="all"
+GPU_MEMORY_UTILIZATION=0.60
+MAX_NUM_SEQS=600
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -30,6 +34,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --gpu)
             GPU="$2"
+            shift 2
+            ;;
+        --gpu-memory-utilization)
+            GPU_MEMORY_UTILIZATION="$2"
+            shift 2
+            ;;
+        --max-num-seqs)
+            MAX_NUM_SEQS="$2"
             shift 2
             ;;
         *)
@@ -60,6 +72,10 @@ STACK_VERSION=$(grep "STACK_VERSION=" .env | grep -v "^#" | cut -d"=" -f2)
 IMAGE_NAME=liquidai/liquid-labs-vllm:${STACK_VERSION}
 
 echo "Launching $IMAGE_NAME with model checkpoint: $MODEL_PATH"
+echo "GPU: $GPU"
+echo "GPU Memory Utilization: $GPU_MEMORY_UTILIZATION"
+echo "Max Num Seqs: $MAX_NUM_SEQS"
+
 docker run -d \
     --name "$MODEL_NAME" \
     --gpus "device=$GPU" \
@@ -70,13 +86,13 @@ docker run -d \
     $IMAGE_NAME \
     --host 0.0.0.0 \
     --port 8000 \
-    --model "/model" \
+    --model "$MODEL_NAME" \
     --tensor-parallel-size 1 \
     --max-logprobs 0 \
     --dtype bfloat16 \
     --enable-chunked-prefill false \
-    --gpu-memory-utilization 0.70 \
-    --max-num-seqs 750 \
+    --gpu-memory-utilization $GPU_MEMORY_UTILIZATION \
+    --max-num-seqs $MAX_NUM_SEQS \
     --max-model-len 32768 \
     --max-seq-len-to-capture 32768
 

@@ -71,7 +71,7 @@ docker run -d \
     --host 0.0.0.0 \
     --port 8000 \
     --model "/model" \
-    --tensor-parallel-size 1
+    --tensor-parallel-size 1 \
     --max-logprobs 0 \
     --dtype bfloat16 \
     --enable-chunked-prefill false \

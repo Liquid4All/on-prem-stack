@@ -72,6 +72,13 @@ docker run -d \
     --port 8000 \
     --model "/model" \
     --tensor-parallel-size 1
+    --max-logprobs 0 \
+    --dtype bfloat16 \
+    --enable-chunked-prefill false \
+    --gpu-memory-utilization 0.70 \
+    --max-num-seqs 750 \
+    --max-model-len 32768 \
+    --max-seq-len-to-capture 32768
 
 if [ $? -eq 0 ]; then
     echo "Container '$MODEL_NAME' started successfully"

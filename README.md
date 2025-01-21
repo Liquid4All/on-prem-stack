@@ -96,7 +96,7 @@ When accessing gated repository, please ensure:
 - The access token has this permission scope: `Read access to contents of all public gated repos you can access`.
 
 ```bash
-./run-vllm.sh --model-name llama-7b --hf-model-path "meta-llama/Llama-2-7b-chat-hf"
+./run-vllm.sh --model-name llama-7b --hf-model-path "meta-llama/Llama-2-7b-chat-hf" --hf-token <hugging-face-token>
 ```
 
 The launched vLLM container has no authentication. Example API calls:

@@ -16,16 +16,18 @@ if huggingface-cli whoami 2>&1 | grep -q "Not logged in"; then
 fi
 
 usage() {
-    echo "Usage: $0 --model-name <container_name> --hf-model-path <huggingface_model_id> [--port <port_number>]"
+    echo "Usage: $0 --model-name <arbitrary-model-name> --hf-model-path <huggingface-model-id> --hf-token <huggingface-token> [--port <port-number>]"
     echo
     echo "Arguments:"
-    echo "  --model-name     Name for the Docker container"
+    echo "  --model-name     Arbitrary name that will be used as the Docker container and the model ID for API call"
     echo "  --hf-model-path  Hugging Face model ID (e.g., 'meta-llama/Llama-2-7b-chat-hf')"
+    echo "  --hf-token       Hugging Face access token"
     echo "  --port           Port to expose locally (default: 9000)"
     echo "  --gpu            Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
     exit 1
 }
 
+HF_TOKEN=""
 PORT=9000
 GPU="all"
 
@@ -69,6 +71,7 @@ docker run -d \
     --name "$MODEL_NAME" \
     --gpus "device=$GPU" \
     -p $PORT:8000 \
+    -e HUGGING_FACE_HUB_TOKEN="$HF_TOKEN" \
     --health-cmd="curl --fail http://localhost:8000/health || exit 1" \
     --health-interval=30s \
     vllm/vllm-openai:latest \

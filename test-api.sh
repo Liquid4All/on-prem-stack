@@ -1,6 +1,6 @@
 #!/bin/bash
 
-API_SECRET=$(grep "API_SECRET=" .env | cut -d"=" -f2)
+API_SECRET=$(grep "API_SECRET=" .env | grep -v "^#" | cut -d"=" -f2)
 
 echo "--------------------------------"
 echo "Test API call to get available models"
@@ -10,7 +10,7 @@ curl http://0.0.0.0:8000/v1/models \
   -H "Authorization: Bearer ${API_SECRET}"
 echo -e "\n"
 
-MODEL_NAME=$(grep "MODEL_NAME=" .env | cut -d"=" -f2)
+MODEL_NAME=$(grep "MODEL_NAME=" .env | grep -v "^#" | cut -d"=" -f2)
 
 echo "--------------------------------"
 echo "Test model call"

@@ -26,8 +26,9 @@ stop_container() {
     local containers=($(docker ps --filter "ancestor=vllm/vllm-openai:latest" --format "{{.Names}}"))
     local selection=$1
 
-    if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -lt ${#containers[@]} ]; then
-        local container_name="${containers[$selection]}"
+    local index=$((selection - 1))
+    if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$index" -ge 0 ] && [ "$index" -lt ${#containers[@]} ]; then
+        local container_name="${containers[$index]}"
         echo "Stopping and removing container: $container_name"
         docker stop "$container_name" && docker rm "$container_name"
         if [ $? -eq 0 ]; then
@@ -41,7 +42,6 @@ stop_container() {
 }
 
 while true; do
-    clear
 
     if list_containers; then
         echo

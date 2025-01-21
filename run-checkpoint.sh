@@ -1,11 +1,11 @@
 #!/bin/bash
 
 usage() {
-    echo "Usage: $0 --model-name <container_name> --model-path <huggingface_model_id> [--port <port_number>]"
+    echo "Usage: $0 --model-name <container_name> --model-path <path_to_model> [--port <port_number>]"
     echo
     echo "Arguments:"
     echo "  --model-name  Name for the Docker container"
-    echo "  --model-path  Path to the model checkpoint"
+    echo "  --model-path  Path to the model checkpoint (local directory)"
     echo "  --port        Port to expose locally (default: 9000)"
     echo "  --gpu         Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
     exit 1
@@ -44,6 +44,13 @@ if [ -z "$MODEL_NAME" ] || [ -z "$MODEL_PATH" ]; then
     usage
 fi
 
+if [ ! -d "$MODEL_PATH" ]; then
+    echo "Error: Model directory does not exist: $MODEL_PATH"
+    exit 1
+fi
+
+MODEL_PATH_ABS=$(realpath "$MODEL_PATH")
+
 if docker ps -a --format '{{.Names}}' | grep -q "^${MODEL_NAME}$"; then
     echo "Container with name '$MODEL_NAME' already exists. Removing it..."
     docker rm -f "$MODEL_NAME" >/dev/null 2>&1
@@ -59,10 +66,11 @@ docker run -d \
     -p $PORT:8000 \
     --health-cmd="curl --fail http://localhost:8000/health || exit 1" \
     --health-interval=30s \
+    -v "$MODEL_PATH_ABS:/model" \
     $IMAGE_NAME \
     --host 0.0.0.0 \
     --port 8000 \
-    --model "$MODEL_PATH" \
+    --model "/model" \
     --tensor-parallel-size 1
 
 if [ $? -eq 0 ]; then

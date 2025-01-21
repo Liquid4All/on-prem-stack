@@ -59,6 +59,11 @@ if [ -z "$MODEL_NAME" ] || [ -z "$HF_MODEL_PATH" ]; then
     usage
 fi
 
+if docker ps -a --format '{{.Names}}' | grep -q "^${MODEL_NAME}$"; then
+    echo "Container with name '$MODEL_NAME' already exists. Removing it..."
+    docker rm -f "$MODEL_NAME" >/dev/null 2>&1
+fi
+
 echo "Launching vLLM container with model: $HF_MODEL_PATH"
 docker run -d \
     --name "$MODEL_NAME" \

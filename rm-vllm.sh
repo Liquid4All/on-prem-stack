@@ -11,10 +11,12 @@ list_containers() {
     echo "Running vLLM containers:"
     echo "----------------------"
 
+    counter=1
     for i in "${!containers[@]}"; do
         local name="${containers[$i]}"
         local port=$(docker port "$name" 8000 2>/dev/null | cut -d ':' -f2)
-        echo "$i) $name (Port: $port)"
+        echo "$counter) $name (Port: $port)"
+        ((counter++))
     done
 
     return 0

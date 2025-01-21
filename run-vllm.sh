@@ -41,6 +41,10 @@ while [[ $# -gt 0 ]]; do
             HF_MODEL_PATH="$2"
             shift 2
             ;;
+        --hf-token)
+            HF_TOKEN="$2"
+            shift 2
+            ;;
         --port)
             PORT="$2"
             shift 2

@@ -20,7 +20,7 @@ while [[ $# -gt 0 ]]; do
             MODEL_NAME="$2"
             shift 2
             ;;
-        --hf-model-path)
+        --model-path)
             MODEL_PATH="$2"
             shift 2
             ;;

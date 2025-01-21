@@ -76,3 +76,20 @@ To expose the web UI through Cloudflare tunnel, the default script given by Clou
 # add --protocol h2mux
 docker run -d --network liquid_labs_network cloudflare/cloudflared:latest tunnel --no-autoupdate run --protocol h2mux --token <tunnel-token>
 ```
+
+## Launch Models from Hugging Face
+
+Run the `run-vllm.sh` script with the following parameters:
+
+| Parameter | Required | Default | Description |
+| --- | --- | --- | --- |
+| `--model-name` | Yes | | Name for the docker container |
+| `--hf-model-path` | Yes | | Hugging Face model path (e.g. `meta-llama/Llama-2-7b-chat-hf`) |
+| `--port` | No | `9000` | Port number for the inference server |
+| `--gpu` | No | `all` | GPU device to use (e.g. to use the first gpu: `0`, to use the second gpu: `1`) |
+
+For example, the following command will launch the `llama-7b` model with the Hugging Face model `meta-llama/Llama-2-7b-chat-hf` on port `9000`:
+
+```bash
+./run-vllm.sh --model-name llama-7b --hf-model-path "meta-llama/Llama-2-7b-chat-hf"
+```

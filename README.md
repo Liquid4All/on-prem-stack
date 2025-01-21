@@ -91,10 +91,15 @@ Run the `run-vllm.sh` script with the following parameters:
 | --- | --- | --- | --- |
 | `--model-name` | Yes | | Name for the docker container and model ID for API call |
 | `--hf-model-path` | Yes | | Hugging Face model path (e.g. `meta-llama/Llama-2-7b-chat-hf`) |
+| `--hf-token` | Required for private or gated repository | | Hugging Face API token |
 | `--port` | No | `9000` | Port number for the inference server |
 | `--gpu` | No | `all` | GPU device to use (e.g. to use the first gpu: `0`, to use the second gpu: `1`) |
 
 For example, the following command will launch the `llama-7b` model with the Hugging Face model `meta-llama/Llama-2-7b-chat-hf` on port `9000`:
+
+When accessing gated repository, please ensure:
+- You have got the permission to access the repository.
+- The access token has this permission scope: `Read access to contents of all public gated repos you can access`.
 
 ```bash
 ./run-vllm.sh --model-name llama-7b --hf-model-path "meta-llama/Llama-2-7b-chat-hf"

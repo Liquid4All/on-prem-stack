@@ -121,6 +121,23 @@ curl http://0.0.0.0:9000/v1/chat/completions \
 }'
 ```
 
+### Troubleshooting
+
+<details>
+<summary>(click to expand)</summary>
+
+**Missing chat template**
+
+When chatting with a model, if you see the following error:
+
+> As of transformers v4.44, default chat template is no longer allowed, so you must provide a chat template if the tokenizer does not define one.
+
+This means the model does not have a default `chat_template` in the `tokenizer_config.json`. It is possible that the model is not trained for chat input. The solution is to run a chat-compatible model instead. For example, `meta-llama/Llama-3.2-3B` has no chat template, but `meta-llama/Llama-3.2-3B-Instruct` does.
+
+The `run-vllm.sh` script does not support passing in a custom chat template. You can modify the script yourself if needed.
+
+</details>
+
 ## Serve Fine-Tuned Liquid Model Checkpoints
 
 Run the `run-checkpoint.sh` script with the following parameters:

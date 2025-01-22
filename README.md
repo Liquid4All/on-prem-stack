@@ -85,27 +85,17 @@ docker run -d --network liquid_labs_network cloudflare/cloudflared:latest tunnel
 
 ## Launch Models from Hugging Face
 
-Run the `run-vllm.sh` script with the following parameters:
-
-| Parameter | Required | Default | Description |
-| --- | --- | --- | --- |
-| `--model-name` | Yes | | Name for the docker container and model ID for API call |
-| `--hf-model-path` | Yes | | Hugging Face model path (e.g. `meta-llama/Llama-2-7b-chat-hf`) |
-| `--hf-token` | Required for private or gated repository | | Hugging Face API token |
-| `--port` | No | `9000` | Port number for the inference server |
-| `--gpu` | No | `all` | GPU device to use (e.g. to use the first gpu: `0`, to use the second gpu: `1`) |
-
-For example, the following command will launch the `llama-7b` model with the Hugging Face model `meta-llama/Llama-2-7b-chat-hf` on port `9000`:
-
-When accessing gated repository, please ensure:
-- You have got the permission to access the repository.
-- The access token has this permission scope: `Read access to contents of all public gated repos you can access`.
+Run the `run-vllm.sh` script to launch models from Hugging Face. The script requires the `--model-name`, `--hf-model-path`, and `--hf-token` parameters. For example, the following command will launch the `llama-7b` model with the Hugging Face model `meta-llama/Llama-2-7b-chat-hf`:
 
 ```bash
 ./run-vllm.sh --model-name llama-7b --hf-model-path "meta-llama/Llama-2-7b-chat-hf" --hf-token <hugging-face-token>
 ```
 
-The launched vLLM container has no authentication. Example API calls:
+When accessing gated repository, please ensure:
+- You have got the permission to access the repository.
+- The access token has this permission scope: `Read access to contents of all public gated repos you can access`.
+
+The launched vLLM container has no authentication. The container exposes port 9000 by default. Example API calls:
 
 ```bash
 # show model ID:
@@ -127,6 +117,20 @@ curl http://0.0.0.0:9000/v1/chat/completions \
 }'
 ```
 
+<details>
+
+<summary>(click to see the full list of parameters for the launch script)</summary>
+
+| Parameter | Required | Default | Description |
+| --- | --- | --- | --- |
+| `--model-name` | Yes | | Name for the docker container and model ID for API call |
+| `--hf-model-path` | Yes | | Hugging Face model path (e.g. `meta-llama/Llama-2-7b-chat-hf`) |
+| `--hf-token` | Required for private or gated repository | | Hugging Face API token |
+| `--port` | No | `9000` | Port number for the inference server |
+| `--gpu` | No | `all` | GPU device to use (e.g. to use the first gpu: `0`, to use the second gpu: `1`) |
+
+</details>
+
 ### Troubleshooting
 
 <details>
@@ -146,24 +150,15 @@ The `run-vllm.sh` script does not support passing in a custom chat template. You
 
 ## Serve Fine-Tuned Liquid Model Checkpoints
 
-Run the `run-checkpoint.sh` script with the following parameters:
+Install `jq`, and run the `run-checkpoint.sh` script.
 
-| Parameter | Required | Default | Description |
-| --- | --- | --- | --- |
-| `--model-name` | Yes | | Name for the docker container and model ID for API call |
-| `--model-path` | Yes | | Local path to the fine-tuned Liquid model checkpoint |
-| `--port` | No | `9000` | Port number for the inference server |
-| `--gpu` | No | `all` | GPU device to use (e.g. to use the first gpu: `0`, to use the second gpu: `1`) |
-| `--gpu-memory-utilization` | No | `0.6` | GPU memory utilization for the inference server. Decrease this value when running into out-of-memory issue. |
-| `--max-num-seqs` | No | | Maximum number of sequences per iteration. Decrease this value when running into out-of-memory issue. |
-
-For example, the following command will launch the checkpoint files in `~/finetuned-lfm-3b-output` as `lfm-3b-ft` on port `9000`:
+For example, the following command will launch the checkpoint files in `~/finetuned-lfm-3b-output` on port `9000`:
 
 ```bash
-./run-vllm.sh --model-name lfm-3b-ft --model-path "~/finetuned-lfm-3b-output"
+./run-vllm.sh --model-checkpoint "~/finetuned-lfm-3b-output"
 ```
 
-The launched vLLM container has no authentication. Example API calls:
+The model name is extracted from the `model_metadata.json` file in the checkpoint directory. The launched vLLM container has no authentication. The container exposes port 9000 by default. Example API calls:
 
 ```bash
 # show model ID:
@@ -184,3 +179,17 @@ curl http://0.0.0.0:9000/v1/chat/completions \
   "temperature": 0
 }'
 ```
+
+<details>
+
+<summary>(click to see the full list of parameters for the launch script)</summary>
+
+| Parameter | Required | Default | Description |
+| --- | --- | --- | --- |
+| `--model-checkpoint` | Yes | | Local path to the fine-tuned Liquid model checkpoint |
+| `--port` | No | `9000` | Port number for the inference server |
+| `--gpu` | No | `all` | GPU device to use (e.g. to use the first gpu: `0`, to use the second gpu: `1`) |
+| `--gpu-memory-utilization` | No | `0.6` | GPU memory utilization for the inference server. Decrease this value when running into out-of-memory issue. |
+| `--max-num-seqs` | No | | Maximum number of sequences per iteration. Decrease this value when running into out-of-memory issue. |
+
+</details>

@@ -5,7 +5,7 @@
 # print_usage_instructions "lfm-3b" 9000 "sk-abc123"  # Uses custom port and API key
 print_usage_instructions() {
     local MODEL_NAME=$1
-    local PORT=$1
+    local PORT=$2
     local API_KEY=$3
 
     cat <<EOF

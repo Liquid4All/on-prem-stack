@@ -4,7 +4,7 @@ usage() {
     echo "Usage: $0 --model-checkpoint <path-to-model-checkpoint> [--port <port_number>] [--gpu-memory-utilization <0.60>] [--max-num-seqs <600>]"
     echo
     echo "Arguments:"
-    echo "  --model-checkpoint        Name for the Docker container"
+    echo "  --model-checkpoint        Path to the model checkpoint directory"
     echo "  --port                    Port to expose locally (default: 9000)"
     echo "  --gpu                     Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
     echo "  --gpu-memory-utilization  Fraction of GPU memory to use (default: 0.60)"

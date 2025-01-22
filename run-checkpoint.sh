@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ./helpers.sh
+
 usage() {
     echo "Usage: $0 --model-checkpoint <path-to-model-checkpoint> [--port <port_number>] [--gpu-memory-utilization <0.60>] [--max-num-seqs <600>]"
     echo
@@ -85,7 +87,7 @@ fi
 STACK_VERSION=$(grep "STACK_VERSION=" .env | grep -v "^#" | cut -d"=" -f2)
 IMAGE_NAME=liquidai/liquid-labs-vllm:${STACK_VERSION}
 
-echo "Launching $IMAGE_NAME from $MODEL_CHECKPOINT_ABS"
+echo "Launching $MODEL_NAME from $MODEL_CHECKPOINT_ABS"
 echo "GPU: $GPU"
 echo "GPU Memory Utilization: $GPU_MEMORY_UTILIZATION"
 echo "Max Num Seqs: $MAX_NUM_SEQS"
@@ -112,10 +114,7 @@ docker run -d \
     --max-seq-len-to-capture 32768
 
 if [ $? -eq 0 ]; then
-    echo "Container '$MODEL_NAME' started successfully"
-    echo "vLLM API is accessible at http://localhost:$PORT"
-    echo "To check container logs: docker logs -f $MODEL_NAME"
-    echo "To stop container: docker stop $MODEL_NAME"
+    print_usage_instructions "$MODEL_NAME" "$PORT"
 else
     echo "Failed to start container"
     echo "Please check the container logs for more information:"

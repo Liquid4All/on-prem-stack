@@ -19,12 +19,18 @@ To stop the container:
   docker stop $MODEL_NAME
 
 To check model status:
-  curl http://localhost:$PORT/v1/models
-
-To chat with the model:
-  curl http://localhost:$PORT/v1/chat/completions \\
-  -H "Content-Type: application/json" \\
 EOF
+
+    if [ -n "$API_KEY" ]; then
+        echo "  curl http://localhost:$PORT/v1/models \\"
+        echo "  -H \"Authorization: Bearer $API_KEY\""
+    else
+        echo "  curl http://localhost:$PORT/v1/models"
+    fi
+
+    echo -e "\nTo chat with the model:"
+    echo "  curl http://localhost:$PORT/v1/chat/completions \\"
+    echo "  -H \"Content-Type: application/json\" \\"
 
     # Add authorization header if API key is provided
     if [ -n "$API_KEY" ]; then

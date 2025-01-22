@@ -19,6 +19,11 @@ MAX_NUM_SEQS=600
 MODEL_CHECKPOINT=""
 MODEL_NAME=""
 
+if ! command -v jq &> /dev/null; then
+    echo "Error: jq is not installed. Please install jq first"
+    exit 1
+fi
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         --model-checkpoint)
@@ -54,16 +59,23 @@ if [ -z "$MODEL_CHECKPOINT" ]; then
 fi
 
 if [ ! -d "$MODEL_CHECKPOINT" ]; then
-    echo "Error: Model checkpoint directory does not exist: $MODEL_PATH"
+    echo "Error: Model checkpoint directory does not exist: $MODEL_CHECKPOINT"
     exit 1
 fi
 
 MODEL_CHECKPOINT_ABS=$(realpath "$MODEL_CHECKPOINT")
 
-# TODO: check whether model_metadata.json exists under MODEL_CHECKPOINT_ABS
-# TODO: read model_metadata.json and extract the model_name field from the JSON
-# TODO: set MODEL_NAME
-MODEL_NAME=
+MODEL_METADATA_FILE="$MODEL_CHECKPOINT_ABS/model_metadata.json"
+if [ ! -f "$MODEL_METADATA_FILE" ]; then
+    echo "Error: model_metadata.json does not exist in the model checkpoint directory"
+    exit 1
+fi
+
+MODEL_NAME=$(jq -r '.model_name' "$MODEL_METADATA_FILE")
+if [ -z "$MODEL_NAME" ]; then
+    echo "Error: model_name is not defined in model_metadata.json"
+    exit 1
+fi
 
 if docker ps -a --format '{{.Names}}' | grep -q "^$MODEL_NAME$"; then
     echo "Container with name '$MODEL_NAME' already exists. Removing it..."
@@ -73,7 +85,7 @@ fi
 STACK_VERSION=$(grep "STACK_VERSION=" .env | grep -v "^#" | cut -d"=" -f2)
 IMAGE_NAME=liquidai/liquid-labs-vllm:${STACK_VERSION}
 
-echo "Launching $IMAGE_NAME with model checkpoint: $MODEL_PATH"
+echo "Launching $IMAGE_NAME from $MODEL_CHECKPOINT_ABS"
 echo "GPU: $GPU"
 echo "GPU Memory Utilization: $GPU_MEMORY_UTILIZATION"
 echo "Max Num Seqs: $MAX_NUM_SEQS"

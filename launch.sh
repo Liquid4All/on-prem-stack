@@ -2,6 +2,8 @@
 
 ENV_FILE=".env"
 
+source ./helpers.sh
+
 # Set env vars in .env file and export them.
 # If a variable already exists in the file, depending on the third argument, either the existing
 # value will be kept (override = false), or the new value will be set (override = true).
@@ -74,4 +76,6 @@ fi
 
 docker compose --env-file "$ENV_FILE" up -d
 
-echo "Docker Compose stack is now running."
+echo "The on-prem stack is now running."
+
+print_usage_instructions "$MODEL_NAME" 8000 "$API_SECRET"

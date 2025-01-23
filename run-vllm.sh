@@ -24,11 +24,11 @@ usage() {
     echo "  --model-name              Arbitrary name that will be used as the Docker container and the model ID for API call"
     echo "  --hf-model-path           Hugging Face model ID (e.g., 'meta-llama/Llama-2-7b-chat-hf')"
     echo "  --hf-token                Hugging Face access token"
-    echo "  --port                    Port to expose locally (default: 9000)"
-    echo "  --gpu                     Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
-    echo "  --gpu-memory-utilization  Fraction of GPU memory to use (default: 0.6)"
-    echo "  --max-num-seqs            Maximum number of sequences to generate in parallel (default: 600)"
-    echo "  --max-model-len           Maximum length of the model (default: None)"
+    echo "  --port                    [Optional] Port to expose locally (default: 9000)"
+    echo "  --gpu                     [Optional] Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
+    echo "  --gpu-memory-utilization  [Optional] Fraction of GPU memory to use (default: 0.6)"
+    echo "  --max-num-seqs            [Optional] Maximum number of sequences to generate in parallel (default: 600)"
+    echo "  --max-model-len           [Optional] Maximum length of the model (default: None)"
     exit 1
 }
 

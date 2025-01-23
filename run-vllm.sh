@@ -61,6 +61,18 @@ while [[ $# -gt 0 ]]; do
             GPU="$2"
             shift 2
             ;;
+        --gpu-memory-utilization)
+            GPU_MEMORY_UTILIZATION="$2"
+            shift 2
+            ;;
+        --max-num-seqs)
+            MAX_NUM_SEQS="$2"
+            shift 2
+            ;;
+        --max-model-len)
+            MAX_MODEL_LEN="$2"
+            shift 2
+            ;;
         *)
             echo "Error: Unknown parameter $1"
             usage

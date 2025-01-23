@@ -28,7 +28,7 @@ usage() {
     echo "  --gpu                     [Optional] Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
     echo "  --gpu-memory-utilization  [Optional] Fraction of GPU memory to use (default: 0.6)"
     echo "  --max-num-seqs            [Optional] Maximum number of sequences to generate in parallel (default: 600)"
-    echo "  --max-model-len           [Optional] Maximum length of the model (default: None)"
+    echo "  --max-model-len           [Optional] Maximum length of the model (default: 32768)"
     exit 1
 }
 
@@ -37,7 +37,7 @@ PORT=9000
 GPU="all"
 GPU_MEMORY_UTILIZATION=0.6
 MAX_NUM_SEQS=600
-MAX_MODEL_LEN=
+MAX_MODEL_LEN=32768
 
 while [[ $# -gt 0 ]]; do
     case $1 in

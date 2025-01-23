@@ -124,7 +124,7 @@ curl http://0.0.0.0:9000/v1/chat/completions \
 | `--gpu` | No | `all` | GPU device to use (e.g. to use the first gpu: `0`, to use the second gpu: `1`) |
 | `--gpu-memory-utilization` | No | `0.6` | GPU memory utilization for the inference server. |
 | `--max-num-seqs` | No | 600 | Maximum number of sequences per iteration. Decrease this value when running into out-of-memory issue. |
-| `--max-model-len` | No | None | Model context length. Decrease this value when running into out-of-memory issue. |
+| `--max-model-len` | No | 32768 | Model context length. Decrease this value when running into out-of-memory issue. |
 
 </details>
 

@@ -18,20 +18,26 @@ if huggingface-cli whoami 2>&1 | grep -q "Not logged in"; then
 fi
 
 usage() {
-    echo "Usage: $0 --model-name <arbitrary-model-name> --hf-model-path <huggingface-model-id> --hf-token <huggingface-token> [--port <port-number>]"
+    echo "Usage: $0 --model-name <arbitrary-model-name> --hf-model-path <huggingface-model-id> --hf-token <huggingface-token>"
     echo
-    echo "Arguments:"
-    echo "  --model-name     Arbitrary name that will be used as the Docker container and the model ID for API call"
-    echo "  --hf-model-path  Hugging Face model ID (e.g., 'meta-llama/Llama-2-7b-chat-hf')"
-    echo "  --hf-token       Hugging Face access token"
-    echo "  --port           Port to expose locally (default: 9000)"
-    echo "  --gpu            Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
+    echo "Full arguments:"
+    echo "  --model-name              Arbitrary name that will be used as the Docker container and the model ID for API call"
+    echo "  --hf-model-path           Hugging Face model ID (e.g., 'meta-llama/Llama-2-7b-chat-hf')"
+    echo "  --hf-token                Hugging Face access token"
+    echo "  --port                    [Optional] Port to expose locally (default: 9000)"
+    echo "  --gpu                     [Optional] Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
+    echo "  --gpu-memory-utilization  [Optional] Fraction of GPU memory to use (default: 0.6)"
+    echo "  --max-num-seqs            [Optional] Maximum number of sequences to generate in parallel (default: 600)"
+    echo "  --max-model-len           [Optional] Maximum length of the model (default: 32768)"
     exit 1
 }
 
 HF_TOKEN=""
 PORT=9000
 GPU="all"
+GPU_MEMORY_UTILIZATION=0.6
+MAX_NUM_SEQS=600
+MAX_MODEL_LEN=32768
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -53,6 +59,18 @@ while [[ $# -gt 0 ]]; do
             ;;
         --gpu)
             GPU="$2"
+            shift 2
+            ;;
+        --gpu-memory-utilization)
+            GPU_MEMORY_UTILIZATION="$2"
+            shift 2
+            ;;
+        --max-num-seqs)
+            MAX_NUM_SEQS="$2"
+            shift 2
+            ;;
+        --max-model-len)
+            MAX_MODEL_LEN="$2"
             shift 2
             ;;
         *)
@@ -85,7 +103,12 @@ docker run -d \
     --port 8000 \
     --model "$HF_MODEL_PATH" \
     --served-model-name "$MODEL_NAME" \
-    --tensor-parallel-size 1
+    --tensor-parallel-size 1 \
+    --max-logprobs 0 \
+    --gpu-memory-utilization $GPU_MEMORY_UTILIZATION \
+    --max-num-seqs $MAX_NUM_SEQS \
+    --max-model-len $MAX_MODEL_LEN \
+    --max-seq-len-to-capture $MAX_MODEL_LEN
 
 if [ $? -eq 0 ]; then
     print_usage_instructions "$MODEL_NAME" "$PORT"

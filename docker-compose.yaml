@@ -24,13 +24,13 @@ services:
       - --tensor_parallel_size
       - "1"
       - --gpu-memory-utilization
-      - "0.70"
+      - "0.6"
       - --max-model-len
-      - "2048"
+      - "1024"
       - --max-num-seqs
-      - "100"
+      - "750"
       - --max-seq-len-to-capture
-      - "2048"
+      - "1024"
     depends_on:
       - liquid-labs-model-volume
     # This is equivalent to "runtime: nvidia", but does not require

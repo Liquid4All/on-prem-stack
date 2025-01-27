@@ -3,12 +3,12 @@
 # Function to read yaml file
 parse_yaml() {
     local yaml_file=$1
-    # Skip the first line (models:)
-    # Look for lines with 'image:' and extract model name and image
     awk '
         /^  [^[:space:]]+:$/ {
-            # Extract model name by removing trailing colon
-            model=substr($1, 3, length($1)-3)
+            # Extract model name by removing trailing colon without trimming
+            model=$1
+            sub(/:$/, "", model)
+            sub(/^  /, "", model)
         }
         /^    image:/ {
             # Extract image value by removing quotes and "image:"

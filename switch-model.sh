@@ -4,13 +4,13 @@
 parse_yaml() {
     local yaml_file=$1
     awk '
-        /^  [^[:space:]]+:$/ {
-            # Extract model name by removing trailing colon without trimming
+        /^[[:space:]]+[^[:space:]]+:$/ {
+            # Extract model name by removing trailing colon and leading spaces
             model=$1
             sub(/:$/, "", model)
-            sub(/^  /, "", model)
+            sub(/^[[:space:]]+/, "", model)
         }
-        /^    image:/ {
+        /^[[:space:]]+image:/ {
             # Extract image value by removing quotes and "image:"
             image=substr($2, 2, length($2)-2)
             print model "\t" image

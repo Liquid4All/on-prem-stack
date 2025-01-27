@@ -3,18 +3,18 @@
 # Function to read yaml file
 parse_yaml() {
     local yaml_file=$1
-    python -c '
-import yaml
-import sys
-
-with open(sys.argv[1], "r") as f:
-    try:
-        data = yaml.safe_load(f)
-        for name, info in data["models"].items():
-            print(f"{name}\t{info["image"]}")
-    except Exception as e:
-        print(f"Error parsing YAML: {e}", file=sys.stderr)
-        sys.exit(1)
+    awk '
+        /^[[:space:]]+[^[:space:]]+:$/ {
+            # Extract model name by removing trailing colon and leading spaces
+            model=$1
+            sub(/:$/, "", model)
+            sub(/^[[:space:]]+/, "", model)
+        }
+        /^[[:space:]]+image:/ {
+            # Extract image value by removing quotes and "image:"
+            image=substr($2, 2, length($2)-2)
+            print model "\t" image
+        }
     ' "$yaml_file"
 }
 

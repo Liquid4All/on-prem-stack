@@ -11,6 +11,8 @@ services:
     command:
       - --model
       - /model
+      - --served-model-name
+      - ${MODEL_NAME}
       - --port
       - "9000"
       - --max-logprobs

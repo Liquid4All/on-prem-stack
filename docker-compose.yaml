@@ -1,6 +1,6 @@
 services:
-  liquid-labs-model-volume-${MODEL_IMAGE}:
-    container_name: liquid-labs-model-volume-${MODEL_IMAGE}
+  liquid-labs-model-volume:
+    container_name: liquid-labs-model-volume
     image: ${MODEL_IMAGE}
     networks:
       - liquid_labs_network
@@ -34,7 +34,7 @@ services:
       - --max-seq-len-to-capture
       - "32768"
     depends_on:
-      - liquid-labs-model-volume-${MODEL_IMAGE}
+      - liquid-labs-model-volume
     # This is equivalent to "runtime: nvidia", but does not require
     # the nvidia-container-runtime to be added in docker config.
     deploy:
@@ -45,7 +45,7 @@ services:
               count: all
               capabilities: [ gpu ]
     volumes_from:
-      - liquid-labs-model-volume-${MODEL_IMAGE}
+      - liquid-labs-model-volume
     networks:
       - liquid_labs_network
 

@@ -90,11 +90,11 @@ rm .env.bak
 
 echo "Updated .env with MODEL_IMAGE=$selected_image"
 
-docker compose stop liquid-labs-model-volume liquid-labs-vllm
+# Launch new container
+echo "Shutting down old model and launching new model..."
+
 # It's important to remove the model volume container first. Otherwise, the vLLM
 # container will keep referencing the volume created by the previous container.
-docker compose rm -f liquid-labs-model-volume
-
-# Launch new container
-echo "Launching new model..."
+docker compose stop liquid-labs-model-volume liquid-labs-vllm && \
+docker compose rm -f liquid-labs-model-volume && \
 ./launch.sh

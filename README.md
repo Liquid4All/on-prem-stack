@@ -152,7 +152,7 @@ Install `jq`, and run the `run-checkpoint.sh` script.
 For example, the following command will launch the checkpoint files in `~/finetuned-lfm-3b-output` on port `9000`:
 
 ```bash
-./run-vllm.sh --model-checkpoint "~/finetuned-lfm-3b-output"
+./run-checkpoint.sh --model-checkpoint "~/finetuned-lfm-3b-output"
 ```
 
 The model name is extracted from the `model_metadata.json` file in the checkpoint directory. The launched vLLM container has no authentication. The container exposes port 9000 by default. Example API calls:

@@ -52,8 +52,8 @@ set_and_export_env_var "JWT_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "API_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 
-set_and_export_env_var "STACK_VERSION" "de295636a7"
-set_and_export_env_var "MODEL_IMAGE" "liquidai/lfm-3b-jp:0.0.1-e"
+set_and_export_env_var "STACK_VERSION" "5fc77244da"
+set_and_export_env_var "MODEL_IMAGE" "liquidai/lfm-7b-e:0.0.1"
 
 MODEL_NAME=lfm-$(extract_model_name "$MODEL_IMAGE")
 set_and_export_env_var "MODEL_NAME" "$MODEL_NAME" true

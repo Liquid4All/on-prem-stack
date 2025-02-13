@@ -1,17 +1,5 @@
 # Liquid Labs On-Prem Deployment
 
-## Files
-
-| File | Description |
-| ---- | ----------- |
-| `README.md` | This file |
-| `docker-compose.yaml` | Docker compose file to launch the stack |
-| `launch.sh` | Script to launch the stack |
-| `.env` | Environment variables file created by the `launch.sh` script |
-| `shutdown.sh` | Script to shut down the stack |
-| `connect-db.sh` | Script to connect to the Postgres database |
-| `test-api.sh` | Script to test the inference server API |
-
 ## Prerequisites
 - Nvidia and CUDA driver
   - Run `nvidia-smi` to verify the driver installation.
@@ -22,6 +10,8 @@
   ```bash
   sudo usermod -aG docker $USER
   sudo systemctl restart docker
+
+  # IMPORTANT: after the restart, log out and log back in
   # verify the permission
   ls -l /var/run/docker.sock
   ```
@@ -52,6 +42,21 @@ When running for the first time, the launch script will do the following:
 When running for subsequent times, the launch script will consume the environment variables from the `.env` file and restart the stack.
 
 Two environment variables are constructed from other variables: `DATABASE_URL` and `MODEL_NAME`. Please do not modify them directly in the `.env` file.
+
+## Files
+
+| File | Description |
+| ---- | ----------- |
+| `README.md` | This file |
+| `docker-compose.yaml` | Docker compose file to launch the stack |
+| `launch.sh` | Script to launch the stack |
+| `.env` | Environment variables file created by the `launch.sh` script |
+| `shutdown.sh` | Script to shut down the stack |
+| `connect-db.sh` | Script to connect to the Postgres database |
+| `test-api.sh` | Script to test the inference server API |
+| `run-vllm.sh` | Script to launch any model from Hugging Face |
+| `rm-vllm.sh` | Script to remove a model launched by `run-vllm.sh` |
+| `run-checkpoint.sh` | Script to serve fine-tuned Liquid model checkpoints |
 
 ## Update
 

@@ -57,6 +57,7 @@ Two environment variables are constructed from other variables: `DATABASE_URL` a
 | `run-vllm.sh` | Script to launch any model from Hugging Face |
 | `rm-vllm.sh` | Script to remove a model launched by `run-vllm.sh` |
 | `run-checkpoint.sh` | Script to serve fine-tuned Liquid model checkpoints |
+| `run-cf-tunnel.sh` | Script to run Cloudflare tunnel |
 
 ## Update
 

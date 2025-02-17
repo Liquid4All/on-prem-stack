@@ -49,7 +49,7 @@ extract_model_name() {
 touch "$ENV_FILE"
 
 set_and_export_env_var "JWT_SECRET" "$(generate_random_string 64)"
-set_and_export_env_var "API_SECRET" "$(generate_random_string 64)"
+set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 
 set_and_export_env_var "STACK_VERSION" "5fc77244da"
@@ -62,7 +62,7 @@ set_and_export_env_var "POSTGRES_DB" "liquid_labs"
 set_and_export_env_var "POSTGRES_USER" "local_user"
 set_and_export_env_var "POSTGRES_PORT" "5432"
 set_and_export_env_var "POSTGRES_SCHEMA" "labs"
-set_and_export_env_var "POSTGRES_PASSWORD" "$(generate_random_string 16)"
+set_and_export_env_var "POSTGRES_PASSWORD" "local_password"
 # The url is liquid-labs-postgres, which must be the same as the service
 # name in the docker compose file.
 set_and_export_env_var "DATABASE_URL" "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@liquid-labs-postgres:5432/$POSTGRES_DB" true

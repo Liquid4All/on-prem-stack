@@ -1,19 +1,5 @@
 # Liquid Labs On-Prem Deployment
 
-## Files
-
-| File | Description |
-| ---- | ----------- |
-| `README.md` | This file |
-| `docker-compose.yaml` | Docker compose file to launch the stack |
-| `launch.sh` | Script to launch the stack |
-| `.env` | Environment variables file created by the `launch.sh` script |
-| `shutdown.sh` | Script to shut down the stack |
-| `connect-db.sh` | Script to connect to the Postgres database |
-| `test-api.sh` | Script to test the inference server API |
-| `models.yaml` | Available models to run |
-| `switch-model.sh` | Script to switch between available models |
-
 ## Prerequisites
 - Nvidia and CUDA driver
   - Run `nvidia-smi` to verify the driver installation.
@@ -24,6 +10,8 @@
   ```bash
   sudo usermod -aG docker $USER
   sudo systemctl restart docker
+
+  # IMPORTANT: after the restart, log out and log back in
   # verify the permission
   ls -l /var/run/docker.sock
   ```
@@ -58,6 +46,24 @@ Two environment variables are constructed from other variables: `DATABASE_URL` a
 ## Models
 
 Currently, each on-prem stack can only run one model at a time. The launch script runs `lfm-3b-jp` by default. To switch models, run `.switch-model.sh` and select the desired model to run. The script will then stop the current model and start the newly chosen model.
+
+## Files
+
+| File | Description |
+| ---- | ----------- |
+| `README.md` | This file |
+| `docker-compose.yaml` | Docker compose file to launch the stack |
+| `launch.sh` | Script to launch the stack |
+| `.env` | Environment variables file created by the `launch.sh` script |
+| `shutdown.sh` | Script to shut down the stack |
+| `connect-db.sh` | Script to connect to the Postgres database |
+| `test-api.sh` | Script to test the inference server API |
+| `run-vllm.sh` | Script to launch any model from Hugging Face |
+| `rm-vllm.sh` | Script to remove a model launched by `run-vllm.sh` |
+| `run-checkpoint.sh` | Script to serve fine-tuned Liquid model checkpoints |
+| `run-cf-tunnel.sh` | Script to run Cloudflare tunnel |
+| `models.yaml` | Available models to run |
+| `switch-model.sh` | Script to switch between available models |
 
 ## Update
 

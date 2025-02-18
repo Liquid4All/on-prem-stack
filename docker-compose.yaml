@@ -54,6 +54,7 @@ services:
     container_name: liquid-labs-python-api
     depends_on:
       - liquid-labs-vllm
+      - liquid-labs-web
     environment:
       # When ENV=production, http requests will be redirected to https
       - ENV=internal
@@ -106,7 +107,6 @@ services:
     image: liquidai/liquid-labs-web:${STACK_VERSION}
     container_name: liquid-labs-web
     depends_on:
-      - liquid-labs-python-api
       - liquid-labs-postgres
     environment:
       - NEXT_PUBLIC_API_BASE_URL=http://liquid-labs-python-api:8000

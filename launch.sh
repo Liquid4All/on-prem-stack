@@ -52,7 +52,7 @@ set_and_export_env_var "JWT_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 
-set_and_export_env_var "STACK_VERSION" "d3d0acc863"
+set_and_export_env_var "STACK_VERSION" "c3d7dbacd1"
 set_and_export_env_var "MODEL_IMAGE" "liquidai/lfm-3b-jp:0.0.1-e"
 
 MODEL_NAME=lfm-$(extract_model_name "$MODEL_IMAGE")
@@ -75,7 +75,7 @@ else
   echo "Docker volume postgres_data already exists"
 fi
 
-docker compose --env-file "$ENV_FILE" up -d
+docker compose --env-file "$ENV_FILE" up -d --wait
 
 echo "The on-prem stack is now running."
 

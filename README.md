@@ -64,6 +64,7 @@ Currently, each on-prem stack can only run one model at a time. The launch scrip
 | `run-cf-tunnel.sh` | Script to run Cloudflare tunnel |
 | `models.yaml` | Available models to run |
 | `switch-model.sh` | Script to switch between available models |
+| `purge.sh` | Script to remove all containers, volumes, and networks |
 
 ## Update
 

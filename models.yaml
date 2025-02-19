@@ -1,5 +1,5 @@
 models:
   lfm-3b-jp:
-    image: "liquidai/lfm-3b-jp:0.0.1-e"
+    image: "liquidai/lfm-3b-jp:0.0.2-e"
   lfm-3b-ichikara:
-    image: "liquidai/lfm-3b-ichikara:0.0.1-e"
+    image: "liquidai/lfm-3b-ichikara:0.0.2-e"

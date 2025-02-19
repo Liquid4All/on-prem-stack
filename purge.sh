@@ -38,13 +38,4 @@ else
     echo "liquid_labs_network not found."
 fi
 
-# Optional: Remove any dangling images
-echo "Checking for dangling images..."
-if [ "$(docker images -f "dangling=true" -q)" ]; then
-    echo "Removing dangling images..."
-    docker rmi $(docker images -f "dangling=true" -q)
-else
-    echo "No dangling images found."
-fi
-
 echo "Cleanup complete. All Liquid on-prem stack components have been removed."

@@ -74,7 +74,7 @@ else
   echo "Docker volume postgres_data already exists"
 fi
 
-docker compose --env-file "$ENV_FILE" up -d
+docker compose --env-file "$ENV_FILE" up -d --wait
 
 echo "The on-prem stack is now running."
 

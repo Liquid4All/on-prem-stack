@@ -38,4 +38,7 @@ else
     echo "liquid_labs_network not found."
 fi
 
+echo "Deleting .env file..."
+rm -f .env
+
 echo "Cleanup complete. All Liquid on-prem stack components have been removed."

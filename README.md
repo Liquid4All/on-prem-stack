@@ -58,6 +58,7 @@ Two environment variables are constructed from other variables: `DATABASE_URL` a
 | `rm-vllm.sh` | Script to remove a model launched by `run-vllm.sh` |
 | `run-checkpoint.sh` | Script to serve fine-tuned Liquid model checkpoints |
 | `run-cf-tunnel.sh` | Script to run Cloudflare tunnel |
+| `purge.sh` | Script to remove all containers, volumes, and networks |
 
 ## Update
 

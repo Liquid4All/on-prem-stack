@@ -116,7 +116,8 @@ services:
     image: liquidai/liquid-labs-web:${STACK_VERSION}
     container_name: liquid-labs-web
     depends_on:
-      - liquid-labs-postgres
+      liquid-labs-postgres:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
       interval: 60s

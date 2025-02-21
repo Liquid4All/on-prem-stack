@@ -47,10 +47,10 @@ def launch(
         ),
     }
 
-    # Write environment variables to .env for docker-compose
-    with open(".env", "w") as f:
-        for key, value in env_vars.items():
-            f.write(f"{key}={value}\n")
+    # Export environment variables for docker-compose
+    for key, value in env_vars.items():
+        typer.echo(f"Setting {key}")
+        docker_helper.set_env(key, value)
 
     # Ensure postgres volume exists
     docker_helper.ensure_volume("postgres_data")

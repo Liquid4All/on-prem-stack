@@ -43,6 +43,10 @@ When running for subsequent times, the launch script will consume the environmen
 
 Two environment variables are constructed from other variables: `DATABASE_URL` and `MODEL_NAME`. Please do not modify them directly in the `.env` file.
 
+## Models
+
+Currently, each on-prem stack can only run one model at a time. The launch script runs `lfm-3b-jp` by default. To switch models, run `.switch-model.sh` and select the desired model to run. The script will then stop the current model and start the newly chosen model.
+
 ## Files
 
 | File | Description |
@@ -58,6 +62,8 @@ Two environment variables are constructed from other variables: `DATABASE_URL` a
 | `rm-vllm.sh` | Script to remove a model launched by `run-vllm.sh` |
 | `run-checkpoint.sh` | Script to serve fine-tuned Liquid model checkpoints |
 | `run-cf-tunnel.sh` | Script to run Cloudflare tunnel |
+| `models.yaml` | Available models to run |
+| `switch-model.sh` | Script to switch between available models |
 | `purge.sh` | Script to remove all containers, volumes, and networks |
 
 ## Update

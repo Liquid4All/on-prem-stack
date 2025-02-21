@@ -1,7 +1,7 @@
 """Model management commands."""
 import typer
 import os
-from typing import Optional, Dict, Any, List, cast, Type, Union
+from typing import Optional, Dict, Any, List, cast, Type, Union, Sequence
 from pathlib import Path
 from liquidai_cli.utils.docker import DockerHelper
 from liquidai_cli.utils.config import load_config
@@ -129,7 +129,7 @@ def list():
         port = "unknown"
         if isinstance(ports, dict):
             port_mappings = cast(List[Dict[str, str]], ports.get("8000/tcp", []))
-            if isinstance(port_mappings, list) and len(port_mappings) > 0:
+            if port_mappings and isinstance(port_mappings, list):
                 mapping = port_mappings[0]
                 if isinstance(mapping, dict):
                     port = mapping.get("HostPort", "unknown")
@@ -157,7 +157,7 @@ def stop(
         port = "unknown"
         if isinstance(ports, dict):
             port_mappings = cast(List[Dict[str, str]], ports.get("8000/tcp", []))
-            if isinstance(port_mappings, list) and len(port_mappings) > 0:
+            if port_mappings and isinstance(port_mappings, list):
                 mapping = port_mappings[0]
                 if isinstance(mapping, dict):
                     port = mapping.get("HostPort", "unknown")

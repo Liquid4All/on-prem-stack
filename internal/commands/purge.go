@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/Liquid4All/on-prem-stack/internal/docker"
-	"github.com/Liquid4All/on-prem-stack/internal/env"
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +51,7 @@ This command will:
 
 			// Shutdown all containers
 			fmt.Println("Shutting down containers...")
-			if err := docker.ComposeDown(env.EnvFile); err != nil {
+			if err := docker.ComposeDown("liquidai.yaml"); err != nil {
 				fmt.Printf("Warning: Failed to stop containers: %v\n", err)
 			}
 

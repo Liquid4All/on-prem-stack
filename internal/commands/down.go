@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/Liquid4All/on-prem-stack/internal/docker"
-	"github.com/Liquid4All/on-prem-stack/internal/env"
 	"github.com/spf13/cobra"
 )
 

@@ -73,6 +73,12 @@ def create_default_config(config_file: Path) -> Dict[str, Any]:
 
 def save_config(config: Dict[str, Any], config_file: Path) -> None:
     """Save configuration to YAML file."""
+    # Ensure model_name is generated from model_image
+    if config["stack"].get("model_image"):
+        model_name = extract_model_name(config["stack"]["model_image"])
+        if model_name:
+            config["stack"]["model_name"] = f"lfm-{model_name}"
+
     with open(config_file, "w") as f:
         yaml.safe_dump(config, f, default_flow_style=False)
 

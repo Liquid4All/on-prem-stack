@@ -96,6 +96,22 @@ liquidai tunnel create --token YOUR_TOKEN
 liquidai tunnel create
 ```
 
+### Configuration Management
+
+```bash
+# Import configuration from .env file
+liquidai config import
+
+# Import from specific .env file
+liquidai config import --env-file /path/to/.env
+
+# Import to specific config file
+liquidai config import --config-file /path/to/liquid.yaml
+
+# Force overwrite existing config
+liquidai config import --force
+```
+
 ## Command Reference
 
 ### Stack Commands
@@ -138,3 +154,10 @@ liquidai tunnel create
 
 - `tunnel create [--token TOKEN]`: Create Cloudflare tunnel
   - `--token`: Cloudflare tunnel token
+
+### Configuration Commands
+
+- `config import [--env-file PATH] [--config-file PATH] [--force]`: Import .env configuration
+  - `--env-file`: Path to .env file (default: .env)
+  - `--config-file`: Path to YAML config file (default: liquid.yaml)
+  - `--force`: Force overwrite existing config

@@ -4,9 +4,18 @@ ENV_FILE=".env"
 
 source ./helpers.sh
 
-# Set env vars in .env file and export them.
-# If a variable already exists in the file, depending on the third argument, either the existing
-# value will be kept (override = false), or the new value will be set (override = true).
+UPGRADE_STACK=false
+UPGRADE_MODEL=false
+
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    --upgrade-stack) UPGRADE_STACK=true ;;
+    --upgrade-model) UPGRADE_MODEL=true ;;
+    *) echo "Unknown parameter: $1" >&2; exit 1 ;;
+  esac
+  shift
+done
+
 set_and_export_env_var() {
   local var_name=$1
   local var_default_value=$2
@@ -52,8 +61,8 @@ set_and_export_env_var "JWT_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 
-set_and_export_env_var "STACK_VERSION" "c3d7dbacd1"
-set_and_export_env_var "MODEL_IMAGE" "liquidai/lfm-3b-jp:0.0.2-e"
+set_and_export_env_var "STACK_VERSION" "c3d7dbacd1" "$UPGRADE_STACK"
+set_and_export_env_var "MODEL_IMAGE" "liquidai/lfm-3b-jp:0.0.2-e" "$UPGRADE_MODEL"
 
 MODEL_NAME=lfm-$(extract_model_name "$MODEL_IMAGE")
 set_and_export_env_var "MODEL_NAME" "$MODEL_NAME" true

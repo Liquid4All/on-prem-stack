@@ -15,4 +15,6 @@ including launching, shutting down, and managing models.`,
 
 func init() {
 	RootCmd.AddCommand(NewLaunchCmd())
+	RootCmd.AddCommand(NewDownCmd())
+	RootCmd.AddCommand(NewPurgeCmd())
 }

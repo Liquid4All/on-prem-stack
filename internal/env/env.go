@@ -2,7 +2,6 @@ package env
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/Liquid4All/on-prem-stack/internal/config"
 )

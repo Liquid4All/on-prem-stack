@@ -1,100 +1,100 @@
 package env
 
 import (
-	"bufio"
 	"fmt"
 	"os"
-	"strings"
+
+	"github.com/Liquid4All/on-prem-stack/internal/config"
 )
 
-const EnvFile = ".env"
-
-// LoadEnvFile loads environment variables from .env file
-func LoadEnvFile() error {
-	file, err := os.Open(EnvFile)
+// LoadConfig loads the configuration and exports environment variables
+func LoadConfig() (*config.Config, error) {
+	cfg, err := config.Load()
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil // File doesn't exist is not an error
-		}
-		return fmt.Errorf("failed to open env file: %w", err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-
-		key := strings.TrimSpace(parts[0])
-		value := strings.TrimSpace(parts[1])
-		os.Setenv(key, value)
+		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
 
-	return scanner.Err()
+	if err := cfg.ExportEnv(); err != nil {
+		return nil, fmt.Errorf("failed to export environment variables: %w", err)
+	}
+
+	return cfg, nil
 }
 
-// SetEnvVar sets an environment variable in both the .env file and current process
+// SetEnvVar updates a configuration value and exports it as an environment variable
 func SetEnvVar(name, value string, override bool) error {
-	// Check if file exists and create if it doesn't
-	if _, err := os.Stat(EnvFile); os.IsNotExist(err) {
-		file, err := os.Create(EnvFile)
-		if err != nil {
-			return fmt.Errorf("failed to create env file: %w", err)
-		}
-		file.Close()
-	}
-
-	// Read existing content
-	content, err := os.ReadFile(EnvFile)
+	cfg, err := config.Load()
 	if err != nil {
-		return fmt.Errorf("failed to read env file: %w", err)
+		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	lines := strings.Split(string(content), "\n")
-	found := false
-	newLines := make([]string, 0, len(lines))
-
-	// Process existing lines
-	for _, line := range lines {
-		if line == "" {
-			continue
+	// Update config based on variable name
+	switch name {
+	case "JWT_SECRET":
+		if override || cfg.Security.JWTSecret == "" {
+			cfg.Security.JWTSecret = value
 		}
-
-		if strings.HasPrefix(line, name+"=") {
-			found = true
-			if override {
-				newLines = append(newLines, fmt.Sprintf("%s=%s", name, value))
-				os.Setenv(name, value)
-				fmt.Printf("%s in %s is overridden with new value and exported\n", name, EnvFile)
-			} else {
-				newLines = append(newLines, line)
-				existingValue := strings.SplitN(line, "=", 2)[1]
-				os.Setenv(name, existingValue)
-				fmt.Printf("%s already exists in %s, the existing value is exported\n", name, EnvFile)
-			}
-		} else {
-			newLines = append(newLines, line)
+	case "API_SECRET":
+		if override || cfg.Security.APISecret == "" {
+			cfg.Security.APISecret = value
 		}
+	case "AUTH_SECRET":
+		if override || cfg.Security.AuthSecret == "" {
+			cfg.Security.AuthSecret = value
+		}
+	case "STACK_VERSION":
+		if override || cfg.Stack.Version == "" {
+			cfg.Stack.Version = value
+		}
+	case "MODEL_IMAGE":
+		if override || cfg.Stack.Model.Image == "" {
+			cfg.Stack.Model.Image = value
+		}
+	case "MODEL_NAME":
+		if override || cfg.Stack.Model.Name == "" {
+			cfg.Stack.Model.Name = value
+		}
+	case "POSTGRES_DB":
+		if override || cfg.Database.Name == "" {
+			cfg.Database.Name = value
+		}
+	case "POSTGRES_USER":
+		if override || cfg.Database.User == "" {
+			cfg.Database.User = value
+		}
+	case "POSTGRES_PASSWORD":
+		if override || cfg.Database.Password == "" {
+			cfg.Database.Password = value
+		}
+	case "POSTGRES_PORT":
+		if override || cfg.Database.Port == 0 {
+			cfg.Database.Port = 5432 // Always use default port
+		}
+	case "POSTGRES_SCHEMA":
+		if override || cfg.Database.Schema == "" {
+			cfg.Database.Schema = value
+		}
+	case "DATABASE_URL":
+		if override || cfg.Database.URL == "" {
+			cfg.Database.URL = value
+		}
+	default:
+		return fmt.Errorf("unknown environment variable: %s", name)
 	}
 
-	// Add new variable if not found
-	if !found {
-		newLines = append(newLines, fmt.Sprintf("%s=%s", name, value))
-		os.Setenv(name, value)
-		fmt.Printf("%s is added to %s and exported\n", name, EnvFile)
+	// Save config and export environment variables
+	if err := cfg.Save(); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
 	}
 
-	// Write back to file
-	output := strings.Join(newLines, "\n") + "\n"
-	if err := os.WriteFile(EnvFile, []byte(output), 0644); err != nil {
-		return fmt.Errorf("failed to write env file: %w", err)
+	if err := cfg.ExportEnv(); err != nil {
+		return fmt.Errorf("failed to export environment variables: %w", err)
+	}
+
+	if override {
+		fmt.Printf("%s in config is overridden with new value and exported\n", name)
+	} else {
+		fmt.Printf("%s already exists in config, the existing value is exported\n", name)
 	}
 
 	return nil

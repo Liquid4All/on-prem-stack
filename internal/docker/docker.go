@@ -18,10 +18,9 @@ func CheckDockerRunning() error {
 // ComposeUp starts the Docker Compose stack with the specified env file
 func ComposeUp(envFile string) error {
 	cmd := exec.Command("docker", "compose", "--env-file", envFile, "up", "-d", "--wait")
-	cmd.Stdout = nil // We'll handle output in the calling function
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to start docker compose stack: %w", err)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to start docker compose stack: %w\nOutput: %s", err, string(output))
 	}
 	return nil
 }
@@ -29,10 +28,9 @@ func ComposeUp(envFile string) error {
 // ComposeDown stops the Docker Compose stack
 func ComposeDown(envFile string) error {
 	cmd := exec.Command("docker", "compose", "--env-file", envFile, "down")
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to stop docker compose stack: %w", err)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to stop docker compose stack: %w\nOutput: %s", err, string(output))
 	}
 	return nil
 }

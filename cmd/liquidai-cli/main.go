@@ -1,21 +1,15 @@
 package main
 
 import (
-    "fmt"
-    "os"
+	"fmt"
+	"os"
 
-    "github.com/spf13/cobra"
+	"github.com/Liquid4All/on-prem-stack/internal/commands"
 )
 
-var rootCmd = &cobra.Command{
-    Use:   "liquidai-cli",
-    Short: "Liquid Labs on-prem deployment CLI",
-    Long:  `Command line interface for managing Liquid Labs on-prem deployment`,
-}
-
 func main() {
-    if err := rootCmd.Execute(); err != nil {
-        fmt.Println(err)
-        os.Exit(1)
-    }
+	if err := commands.RootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

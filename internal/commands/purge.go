@@ -74,10 +74,15 @@ This command will:
 				fmt.Println("liquid_labs_network removed.")
 			}
 
-			// Delete .env file
-			fmt.Println("Deleting .env file...")
-			if err := os.Remove(env.EnvFile); err != nil && !os.IsNotExist(err) {
-				fmt.Printf("Warning: Failed to remove .env file: %v\n", err)
+			// Delete config file
+			fmt.Println("Deleting liquidai.yaml file...")
+			if err := os.Remove("liquidai.yaml"); err != nil && !os.IsNotExist(err) {
+				fmt.Printf("Warning: Failed to remove liquidai.yaml file: %v\n", err)
+			}
+			
+			// Remove any backup .env files
+			if err := os.Remove(".env.bak"); err != nil && !os.IsNotExist(err) {
+				fmt.Printf("Warning: Failed to remove .env.bak file: %v\n", err)
 			}
 
 			fmt.Println("Cleanup complete. All Liquid on-prem stack components have been removed.")

@@ -19,13 +19,13 @@ This command will:
 - Remove containers (but preserve volumes)
 - Keep the postgres_data volume intact`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Check if .env file exists
-			if _, err := os.Stat(env.EnvFile); os.IsNotExist(err) {
-				return fmt.Errorf("error: %s does not exist. Please run the launch command first", env.EnvFile)
+			// Check if config file exists
+			if _, err := os.Stat("liquidai.yaml"); os.IsNotExist(err) {
+				return fmt.Errorf("error: liquidai.yaml does not exist. Please run the launch command first")
 			}
 
 			fmt.Println("Stopping the Liquid Labs stack...")
-			if err := docker.ComposeDown(env.EnvFile); err != nil {
+			if err := docker.ComposeDown("liquidai.yaml"); err != nil {
 				return fmt.Errorf("failed to stop the stack: %w", err)
 			}
 

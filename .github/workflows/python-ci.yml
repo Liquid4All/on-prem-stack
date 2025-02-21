@@ -49,8 +49,8 @@ jobs:
         
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
+      continue-on-error: true
       with:
         file: ./python_cli/coverage.xml
         flags: unittests
         name: codecov-umbrella
-        fail_ci_if_error: true

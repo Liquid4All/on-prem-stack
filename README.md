@@ -62,7 +62,19 @@ Two environment variables are constructed from other variables: `DATABASE_URL` a
 
 ## Update
 
-To update the stack, change `STACK_VERSION` and `MODEL_IMAGE` in the `.env` file and run the launch script again.
+To update stack or model to the latest version, pull the latest changes from this repository, and run the launch script with `--upgrade-stack` and / or `--upgrade-model`:
+
+```bash
+./shutdown.sh
+./launch.sh [--upgrade-stack] [--upgrade-model]
+```
+
+To update the stack or modal manually to a specific version, change `STACK_VERSION` and / or `MODEL_IMAGE` in the `.env` file and run:
+
+```bash
+./shutdown.sh
+./launch.sh
+```
 
 ## Connect to the Database
 

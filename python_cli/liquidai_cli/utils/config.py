@@ -49,7 +49,7 @@ def load_config(config_file: Path = Path("liquid.yaml")) -> Dict[str, Any]:
         return create_default_config(config_file)
 
     with open(config_file) as f:
-        config = yaml.safe_load(f)
+        config = yaml.load(f)
 
     # Generate secrets if they don't exist
     if not config["stack"]["jwt_secret"]:
@@ -80,7 +80,7 @@ def save_config(config: Dict[str, Any], config_file: Path) -> None:
             config["stack"]["model_name"] = f"lfm-{model_name}"
 
     with open(config_file, "w") as f:
-        yaml.safe_dump(config, f, default_flow_style=False)
+        yaml.dump(config, f)
 
 
 def get_config_value(

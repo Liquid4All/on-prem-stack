@@ -35,3 +35,15 @@ include = '\.pyi?$'
 [tool.flake8]
 max-line-length = 120
 extend-ignore = ['E203']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=liquidai_cli"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+]

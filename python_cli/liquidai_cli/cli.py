@@ -16,9 +16,11 @@ app.add_typer(model.app, name="model", help="Manage ML models")
 app.add_typer(db.app, name="db", help="Database operations")
 app.add_typer(infra.app, name="tunnel", help="Infrastructure operations")
 
+
 def main():
     """Entry point for the CLI."""
     app()
+
 
 if __name__ == "__main__":
     main()

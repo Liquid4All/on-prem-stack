@@ -28,10 +28,10 @@ liquidai = "liquidai_cli.cli:main"
 packages = ["liquidai_cli"]
 
 [tool.black]
-line-length = 100
+line-length = 120
 target-version = ['py38']
 include = '\.pyi?$'
 
 [tool.flake8]
-max-line-length = 100
+max-line-length = 120
 extend-ignore = ['E203']

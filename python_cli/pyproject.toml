@@ -26,3 +26,12 @@ liquidai = "liquidai_cli.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["liquidai_cli"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+include = '\.pyi?$'
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ['E203']

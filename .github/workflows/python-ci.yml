@@ -1,0 +1,56 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'python_cli/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'python_cli/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Install dependencies
+      run: |
+        cd python_cli
+        python -m pip install --upgrade pip
+        pip install .[test]
+        pip install black flake8
+        
+    - name: Run black
+      run: |
+        cd python_cli
+        black . --check
+        
+    - name: Run flake8
+      run: |
+        cd python_cli
+        flake8 .
+        
+    - name: Run tests
+      run: |
+        cd python_cli
+        pytest --cov=liquidai_cli --cov-report=xml
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./python_cli/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true

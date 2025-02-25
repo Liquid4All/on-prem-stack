@@ -162,6 +162,40 @@ This means the model does not have a default `chat_template` in the `tokenizer_c
 
 The `run-vllm.sh` script does not support passing in a custom chat template. You can modify the script yourself if needed.
 
+**Unknown or invalid runtime name: nvidia**
+
+1. Ensure NVIDIA Container Toolkit is installed:
+
+```bash
+sudo apt update
+sudo apt install -y nvidia-container-toolkit nvidia-container-runtime
+```
+
+2. Configure Docker to use NVIDIA runtime
+
+```bash
+sudo nano /etc/docker/daemon.json
+```
+
+Ensure the file contains the following:
+
+```json
+{
+  "runtimes": {
+    "nvidia": {
+      "path": "nvidia-container-runtime",
+      "runtimeArgs": []
+    }
+  }
+}
+```
+
+Then, restart Docker:
+
+```bash
+sudo systemctl restart docker
+```
+
 </details>
 
 ## Serve Fine-Tuned Liquid Model Checkpoints

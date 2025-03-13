@@ -1,22 +1,6 @@
 #!/bin/bash
 
-# Function to read yaml file
-parse_yaml() {
-    local yaml_file=$1
-    awk '
-        /^[[:space:]]+[^[:space:]]+:$/ {
-            # Extract model name by removing trailing colon and leading spaces
-            model=$1
-            sub(/:$/, "", model)
-            sub(/^[[:space:]]+/, "", model)
-        }
-        /^[[:space:]]+image:/ {
-            # Extract image value by removing quotes and "image:"
-            image=substr($2, 2, length($2)-2)
-            print model "\t" image
-        }
-    ' "$yaml_file"
-}
+source ./helpers.sh
 
 # Check if models.yaml exists
 if [ ! -f "models.yaml" ]; then

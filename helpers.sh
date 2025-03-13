@@ -52,3 +52,25 @@ EOF
   }'
 EOF
 }
+
+# Function to read yaml file
+parse_yaml() {
+    local yaml_file=$1
+    awk '
+        /^[[:space:]]+[^[:space:]]+:$/ {
+            # Extract model name by removing trailing colon and leading spaces
+            model=$1
+            sub(/:$/, "", model)
+            sub(/^[[:space:]]+/, "", model)
+        }
+        /^[[:space:]]+image:/ {
+            # Extract image value by removing quotes and "image:"
+            image=substr($2, 2, length($2)-2)
+            print model "\t" image
+        }
+        /^[[:space:]]+default:[[:space:]]+true/ {
+            # Mark the current model as default
+            print model "\tdefault"
+        }
+    ' "$yaml_file"
+}

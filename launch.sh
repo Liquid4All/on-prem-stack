@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ENV_FILE=".env"
+YAML_FILE="models.yaml"
 
 source ./helpers.sh
 
@@ -15,6 +16,56 @@ while [[ "$#" -gt 0 ]]; do
   esac
   shift
 done
+
+get_model_from_yaml() {
+  local yaml_file=$1
+
+  if [ ! -f "$yaml_file" ]; then
+    echo "Error: $yaml_file not found!" >&2
+    exit 1
+  fi
+
+  readarray -t model_data < <(parse_yaml "$yaml_file")
+
+  local default_model=""
+  local default_image=""
+  local first_model=""
+  local first_image=""
+
+  for data in "${model_data[@]}"; do
+    local name=$(echo "$data" | cut -f1)
+    local value=$(echo "$data" | cut -f2)
+
+    if [ -z "$first_model" ] && [ "$value" != "default" ]; then
+      first_model="$name"
+      first_image="$value"
+    fi
+
+    if [ "$value" != "default" ] && [ -n "$name" ]; then
+      model_images["$name"]="$value"
+    fi
+
+    if [ "$value" = "default" ]; then
+      default_model="$name"
+    fi
+  done
+
+  local selected_model=""
+  local selected_image=""
+
+  if [ -n "$default_model" ] && [ -n "${model_images[$default_model]}" ]; then
+    selected_model="$default_model"
+    selected_image="${model_images[$default_model]}"
+  elif [ -n "$first_model" ]; then
+    selected_model="$first_model"
+    selected_image="$first_image"
+  else
+    echo "Error: No valid models found in $yaml_file" >&2
+    exit 1
+  fi
+
+  echo "$selected_model:$selected_image"
+}
 
 set_and_export_env_var() {
   local var_name=$1
@@ -62,9 +113,16 @@ set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 
 set_and_export_env_var "STACK_VERSION" "c3d7dbacd1" "$UPGRADE_STACK"
-set_and_export_env_var "MODEL_IMAGE" "liquidai/lfm-7b-e:0.0.1" "$UPGRADE_MODEL"
 
-MODEL_NAME=lfm-$(extract_model_name "$MODEL_IMAGE")
+declare -A model_images
+model_info=$(get_model_from_yaml "$YAML_FILE")
+model_name=$(echo "$model_info" | cut -d':' -f1)
+model_image=$(echo "$model_info" | cut -d':' -f2-)
+
+echo "Default model: $model_name with image: $model_image"
+set_and_export_env_var "MODEL_IMAGE" "$model_image" "$UPGRADE_MODEL"
+
+MODEL_NAME="lfm-$model_name"
 set_and_export_env_var "MODEL_NAME" "$MODEL_NAME" true
 
 set_and_export_env_var "POSTGRES_DB" "liquid_labs"

@@ -43,6 +43,10 @@ When running for subsequent times, the launch script will consume the environmen
 
 Two environment variables are constructed from other variables: `DATABASE_URL` and `MODEL_NAME`. Please do not modify them directly in the `.env` file.
 
+## Models
+
+Currently, each on-prem stack can only run one model at a time. We will improve on this soon. The launch script runs the default model specified in `config.yaml`. To switch models, run `./launch.sh --switch-model` and select the desired model to run. The script will then stop the current model and start the newly chosen model.
+
 ## Files
 
 | File | Description |
@@ -50,6 +54,7 @@ Two environment variables are constructed from other variables: `DATABASE_URL` a
 | `README.md` | This file |
 | `docker-compose.yaml` | Docker compose file to launch the stack |
 | `launch.sh` | Script to launch the stack |
+| `config.yaml` | Customer-specific stack configuration. |
 | `.env` | Environment variables file created by the `launch.sh` script |
 | `shutdown.sh` | Script to shut down the stack |
 | `connect-db.sh` | Script to connect to the Postgres database |

@@ -25,7 +25,8 @@ echo -e "\nYou can switch to one of the following models:"
 readarray -t models < <(parse_yaml "config.yaml")
 
 # Filter out running container and display options
-declare -A model_map
+declare -A model_image_map
+declare -A model_name_map
 counter=1
 for model in "${models[@]}"; do
     name=$(echo "$model" | cut -f1)
@@ -37,7 +38,8 @@ for model in "${models[@]}"; do
     fi
 
     echo "$counter) $name"
-    model_map[$counter]="$image"
+    model_image_map[$counter]="$image"
+    model_name_map[$counter]="$name"
     ((counter++))
 done
 
@@ -56,8 +58,9 @@ if ! [[ "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" 
     exit 1
 fi
 
-# Get selected image
-selected_image="${model_map[$selection]}"
+# Get selected image and name
+selected_image="${model_image_map[$selection]}"
+selected_name="${model_name_map[$selection]}"
 
 # Update .env file
 if [ ! -f ".env" ]; then
@@ -68,11 +71,12 @@ fi
 # Create backup of .env
 cp .env .env.backup
 
-# Update MODEL_IMAGE in .env
+# Update MODEL_IMAGE and MODEL_NAME in .env
 sed -i.bak "s|^MODEL_IMAGE=.*|MODEL_IMAGE=$selected_image|" .env
+sed -i.bak "s|^MODEL_NAME=.*|MODEL_NAME=$selected_name|" .env
 rm .env.bak
 
-echo "Updated .env with MODEL_IMAGE=$selected_image"
+echo "Updated .env with MODEL_IMAGE=$selected_image and MODEL_NAME=$selected_name"
 
 # Launch new container
 echo "Shutting down old model and launching new model..."

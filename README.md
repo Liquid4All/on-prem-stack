@@ -43,6 +43,10 @@ When running for subsequent times, the launch script will consume the environmen
 
 Two environment variables are constructed from other variables: `DATABASE_URL` and `MODEL_NAME`. Please do not modify them directly in the `.env` file.
 
+## Models
+
+Currently, each on-prem stack can only run one model at a time. We will improve on this soon. The launch script runs the default model specified in `config.yaml`. To switch models, run `./launch.sh --switch-model` and select the desired model to run. The script will then stop the current model and start the newly chosen model.
+
 ## Files
 
 | File | Description |
@@ -50,10 +54,12 @@ Two environment variables are constructed from other variables: `DATABASE_URL` a
 | `README.md` | This file |
 | `docker-compose.yaml` | Docker compose file to launch the stack |
 | `launch.sh` | Script to launch the stack |
+| `config.yaml` | Customer-specific stack configuration. |
 | `.env` | Environment variables file created by the `launch.sh` script |
 | `shutdown.sh` | Script to shut down the stack |
 | `connect-db.sh` | Script to connect to the Postgres database |
 | `test-api.sh` | Script to test the inference server API |
+| `switch-model.sh` | Script to switch the model to run, equivalent to `./launch.sh --switch-model` |
 | `run-vllm.sh` | Script to launch any model from Hugging Face |
 | `rm-vllm.sh` | Script to remove a model launched by `run-vllm.sh` |
 | `run-checkpoint.sh` | Script to serve fine-tuned Liquid model checkpoints |
@@ -62,14 +68,21 @@ Two environment variables are constructed from other variables: `DATABASE_URL` a
 
 ## Update
 
-To update stack or model to the latest version, pull the latest changes from this repository, and run the launch script with `--upgrade-stack` and / or `--upgrade-model`:
+To update stack to the latest version, pull the latest changes from this repository, and run the launch script with `--upgrade-stack`:
 
 ```bash
 ./shutdown.sh
-./launch.sh [--upgrade-stack] [--upgrade-model]
+./launch.sh [--upgrade-stack]
 ```
 
-To update the stack or modal manually to a specific version, change `STACK_VERSION` and / or `MODEL_IMAGE` in the `.env` file and run:
+To update the stack manually to a specific version, change `STACK_VERSION` in the `.env` file and run:
+
+```bash
+./shutdown.sh
+./launch.sh
+```
+
+To upgrade the model, change the model image in `config.yaml` and run:
 
 ```bash
 ./shutdown.sh
@@ -78,7 +91,7 @@ To update the stack or modal manually to a specific version, change `STACK_VERSI
 
 ## Connect to the Database
 
-1. Install `pgcli` first.
+1. Install [`pgcli`](https://www.pgcli.com/install) first.
 2. Run `connect-db.sh`.
 
 ## Shutdown
@@ -89,11 +102,10 @@ To update the stack or modal manually to a specific version, change `STACK_VERSI
 
 ## Cloudflare tunnel
 
-To expose the web UI through Cloudflare tunnel, the default script given by Cloudflare does not work. Run the following command with `--network` and `--protocol h2mux` options instead.
+To expose the web UI through Cloudflare tunnel, run the `./run-cf-tunnel.sh` script with a Cloudflare tunnel token:
 
 ```bash
-# add --protocol h2mux
-docker run -d --network liquid_labs_network cloudflare/cloudflared:latest tunnel --no-autoupdate run --protocol h2mux --token <tunnel-token>
+./run-cf-tunnel.sh <cloudflare-tunnel-token>
 ```
 
 ## Launch Models from Hugging Face

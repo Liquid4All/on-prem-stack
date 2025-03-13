@@ -1,0 +1,4 @@
+models:
+  lfm-7b-e:
+    image: "liquidai/lfm-7b-e:0.0.1"
+    default: true

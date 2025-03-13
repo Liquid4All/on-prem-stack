@@ -56,19 +56,27 @@ EOF
 # Function to read yaml file
 parse_yaml() {
     local yaml_file=$1
+
+    local model_count=$(grep -c "^[[:space:]]\+[^[:space:]]\+:$" "$yaml_file")
+    if [ "$model_count" -eq 0 ]; then
+        echo "Error: No models found in $yaml_file" >&2
+        exit 1
+    fi
+
     awk '
-        /^[[:space:]]+[^[:space:]]+:$/ {
+        /^models:/ {in_models=1; next}
+        in_models && /^[[:space:]]+[^[:space:]]+:$/ {
             # Extract model name by removing trailing colon and leading spaces
             model=$1
             sub(/:$/, "", model)
             sub(/^[[:space:]]+/, "", model)
         }
-        /^[[:space:]]+image:/ {
+        in_models && /^[[:space:]]+image:/ {
             # Extract image value by removing quotes and "image:"
             image=substr($2, 2, length($2)-2)
             print model "\t" image
         }
-        /^[[:space:]]+default:[[:space:]]+true/ {
+        in_models && /^[[:space:]]+default:[[:space:]]+true/ {
             # Mark the current model as default
             print model "\tdefault"
         }

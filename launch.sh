@@ -27,36 +27,6 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
-# Function to parse yaml file
-parse_yaml() {
-    local yaml_file=$1
-
-    local model_count=$(grep -c "^[[:space:]]\+[^[:space:]]\+:$" "$yaml_file")
-    if [ "$model_count" -eq 0 ]; then
-        echo "Error: No models found in $yaml_file" >&2
-        exit 1
-    fi
-
-    awk '
-        /^models:/ {in_models=1; next}
-        in_models && /^[[:space:]]+[^[:space:]]+:$/ {
-            # Extract model name by removing trailing colon and leading spaces
-            model=$1
-            sub(/:$/, "", model)
-            sub(/^[[:space:]]+/, "", model)
-        }
-        in_models && /^[[:space:]]+image:/ {
-            # Extract image value by removing quotes and "image:"
-            image=substr($2, 2, length($2)-2)
-            print model "\t" image
-        }
-        in_models && /^[[:space:]]+default:[[:space:]]+true/ {
-            # Mark the current model as default
-            print model "\tdefault"
-        }
-    ' "$yaml_file"
-}
-
 # Function to display model selection menu and get user choice
 select_model() {
     local yaml_file=$1
@@ -216,29 +186,7 @@ if [ "$SWITCH_MODEL" = true ]; then
   # Case 1: User wants to switch models
   echo "Switching model..."
 
-  if [ -f "$ENV_FILE" ] && grep -q "^MODEL_NAME=" "$ENV_FILE"; then
-    current_model=$(grep "^MODEL_NAME=" "$ENV_FILE" | cut -d '=' -f2-)
-  fi
-
-  model_selection=$(select_model "$YAML_FILE" "$current_model")
-
-  if [ -n "$model_selection" ]; then
-    model_name=$(echo "$model_selection" | cut -d':' -f1)
-    model_image=$(echo "$model_selection" | cut -d':' -f2-)
-
-    echo "Switching to model: $model_name with image: $model_image"
-
-    # Update .env file
-    set_and_export_env_var "MODEL_IMAGE" "$model_image" true
-    set_and_export_env_var "MODEL_NAME" "$model_name" true
-
-    # Shut down old containers and restart
-    echo "Shutting down old model and launching new model..."
-    docker compose stop liquid-labs-model-volume liquid-labs-vllm && \
-    docker compose rm -f liquid-labs-model-volume
-  else
-    exit 0
-  fi
+  source ./switch-model.sh
 elif ! $ENV_EXISTS || ! grep -q "^MODEL_NAME=" "$ENV_FILE" || ! grep -q "^MODEL_IMAGE=" "$ENV_FILE" || [ "$UPGRADE_MODEL" = true ]; then
   # Case 2: No .env file or model info missing or upgrade requested - use default from YAML
   model_info=$(get_default_model "$YAML_FILE")

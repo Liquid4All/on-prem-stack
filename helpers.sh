@@ -79,7 +79,7 @@ parse_yaml() {
   ' "$yaml_file")
 
   # Second pass to output model information with default tag
-  awk -v default="$default_model" '
+  awk -v default_model="$default_model" '
     /^models:/ {in_models=1; next}
     in_models && /^[[:space:]]+[^[:space:]]+:$/ {
       # Extract model name by removing trailing colon and leading spaces
@@ -88,7 +88,7 @@ parse_yaml() {
       sub(/^[[:space:]]+/, "", model)
       current_model=model
       is_default=0
-      if (current_model == default) {
+      if (current_model == default_model) {
         is_default=1
       }
     }
@@ -96,7 +96,7 @@ parse_yaml() {
       # Extract image value by removing quotes and "image:"
       image=substr($2, 2, length($2)-2)
       if (is_default) {
-        print current_model "\t" image "\tdefault"
+        print current_model "\t" image "\tdefault_model"
       } else {
         print current_model "\t" image
       }

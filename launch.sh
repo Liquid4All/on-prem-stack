@@ -11,7 +11,6 @@ UPGRADE_STACK=false
 UPGRADE_MODEL=false
 SWITCH_MODEL=false
 
-echo "Checking for config file: $YAML_FILE"
 if [ ! -f "$YAML_FILE" ]; then
   echo "ERROR: $YAML_FILE not found. Please contact Liquid support to get a $YAML_FILE file first."
   exit 1
@@ -143,15 +142,12 @@ set_and_export_env_var() {
     if [ "$override" = true ]; then
       sed -i "s|^${var_name}=.*|${var_name}=${var_default_value}|" "$ENV_FILE"
       export "${var_name}=${var_default_value}"
-      echo "$var_name in $ENV_FILE is overridden with new value and exported"
     else
       export "${var_name}=${existing_value}"
-      echo "$var_name already exists in $ENV_FILE, the existing value is exported"
     fi
   else
     echo "${var_name}=${var_default_value}" >> "$ENV_FILE"
     export "${var_name}=${var_default_value}"
-    echo "$var_name is added to $ENV_FILE and exported"
   fi
 }
 

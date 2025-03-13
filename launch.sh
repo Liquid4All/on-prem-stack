@@ -9,6 +9,12 @@ UPGRADE_STACK=false
 UPGRADE_MODEL=false
 SWITCH_MODEL=false
 
+echo "Checking for config file: $YAML_FILE"
+if [ ! -f "$YAML_FILE" ]; then
+  echo "ERROR: $YAML_FILE not found. Please contact Liquid support to get a $YAML_FILE file first."
+  exit 1
+fi
+
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     --upgrade-stack) UPGRADE_STACK=true ;;
@@ -22,6 +28,13 @@ done
 # Function to parse yaml file
 parse_yaml() {
     local yaml_file=$1
+
+    local model_count=$(grep -c "^[[:space:]]\+[^[:space:]]\+:$" "$yaml_file")
+    if [ "$model_count" -eq 0 ]; then
+        echo "Error: No models found in $yaml_file" >&2
+        exit 1
+    fi
+
     awk '
         /^models:/ {in_models=1; next}
         in_models && /^[[:space:]]+[^[:space:]]+:$/ {
@@ -46,11 +59,6 @@ parse_yaml() {
 select_model() {
     local yaml_file=$1
     local current_model=$2
-
-    if [ ! -f "$yaml_file" ]; then
-        echo "Error: $yaml_file not found!" >&2
-        exit 1
-    fi
 
     # Get list of models
     readarray -t models < <(parse_yaml "$yaml_file")
@@ -103,11 +111,6 @@ select_model() {
 
 get_default_model() {
   local yaml_file=$1
-
-  if [ ! -f "$yaml_file" ]; then
-    echo "Error: $yaml_file not found!" >&2
-    exit 1
-  fi
 
   readarray -t model_data < <(parse_yaml "$yaml_file")
 

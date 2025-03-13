@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 ENV_FILE=".env"
 YAML_FILE="config.yaml"
 

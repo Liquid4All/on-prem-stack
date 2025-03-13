@@ -179,8 +179,6 @@ set_and_export_env_var "POSTGRES_PASSWORD" "local_password"
 # name in the docker compose file.
 set_and_export_env_var "DATABASE_URL" "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@liquid-labs-postgres:5432/$POSTGRES_DB" true
 
-echo
-
 # Handle model selection logic
 declare -A model_images
 current_model=""

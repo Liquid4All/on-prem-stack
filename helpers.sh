@@ -21,24 +21,24 @@ To stop the container:
 To check model status:
 EOF
 
-    if [ -n "$API_KEY" ]; then
-        echo "  curl http://localhost:$PORT/v1/models \\"
-        echo "  -H \"Authorization: Bearer $API_KEY\""
-    else
-        echo "  curl http://localhost:$PORT/v1/models"
-    fi
+  if [ -n "$API_KEY" ]; then
+    echo "  curl http://localhost:$PORT/v1/models \\"
+    echo "  -H \"Authorization: Bearer $API_KEY\""
+  else
+    echo "  curl http://localhost:$PORT/v1/models"
+  fi
 
-    echo -e "\nTo chat with the model:"
-    echo "  curl http://localhost:$PORT/v1/chat/completions \\"
-    echo "  -H \"Content-Type: application/json\" \\"
+  echo -e "\nTo chat with the model:"
+  echo "  curl http://localhost:$PORT/v1/chat/completions \\"
+  echo "  -H \"Content-Type: application/json\" \\"
 
-    # Add authorization header if API key is provided
-    if [ -n "$API_KEY" ]; then
-        echo "  -H \"Authorization: Bearer $API_KEY\" \\"
-    fi
+  # Add authorization header if API key is provided
+  if [ -n "$API_KEY" ]; then
+    echo "  -H \"Authorization: Bearer $API_KEY\" \\"
+  fi
 
-    # Complete the curl command
-    cat <<EOF
+  # Complete the curl command
+  cat <<EOF
   -d '{
     "model": "$MODEL_NAME",
     "messages": [
@@ -53,32 +53,53 @@ EOF
 EOF
 }
 
-# Function to read yaml file
+# Function to parse yaml file
 parse_yaml() {
-    local yaml_file=$1
+  local yaml_file=$1
 
-    local model_count=$(grep -c "^[[:space:]]\+[^[:space:]]\+:$" "$yaml_file")
-    if [ "$model_count" -eq 0 ]; then
-        echo "Error: No models found in $yaml_file" >&2
-        exit 1
-    fi
+  local model_count=$(grep -c "^[[:space:]]\+[^[:space:]]\+:$" "$yaml_file")
+  if [ "$model_count" -eq 0 ]; then
+    echo "Error: No models found in $yaml_file" >&2
+    exit 1
+  fi
 
-    awk '
-        /^models:/ {in_models=1; next}
-        in_models && /^[[:space:]]+[^[:space:]]+:$/ {
-            # Extract model name by removing trailing colon and leading spaces
-            model=$1
-            sub(/:$/, "", model)
-            sub(/^[[:space:]]+/, "", model)
-        }
-        in_models && /^[[:space:]]+image:/ {
-            # Extract image value by removing quotes and "image:"
-            image=substr($2, 2, length($2)-2)
-            print model "\t" image
-        }
-        in_models && /^[[:space:]]+default:[[:space:]]+true/ {
-            # Mark the current model as default
-            print model "\tdefault"
-        }
-    ' "$yaml_file"
+  # First pass to find the default model
+  local default_model=$(awk '
+    /^models:/ {in_models=1; next}
+    in_models && /^[[:space:]]+[^[:space:]]+:$/ {
+      model=$1
+      sub(/:$/, "", model)
+      sub(/^[[:space:]]+/, "", model)
+      current_model=model
+    }
+    in_models && /^[[:space:]]+default:[[:space:]]+true/ {
+      print current_model
+      exit
+    }
+  ' "$yaml_file")
+
+  # Second pass to output model information with default tag
+  awk -v default="$default_model" '
+    /^models:/ {in_models=1; next}
+    in_models && /^[[:space:]]+[^[:space:]]+:$/ {
+      # Extract model name by removing trailing colon and leading spaces
+      model=$1
+      sub(/:$/, "", model)
+      sub(/^[[:space:]]+/, "", model)
+      current_model=model
+      is_default=0
+      if (current_model == default) {
+        is_default=1
+      }
+    }
+    in_models && /^[[:space:]]+image:/ {
+      # Extract image value by removing quotes and "image:"
+      image=substr($2, 2, length($2)-2)
+      if (is_default) {
+        print current_model "\t" image "\tdefault"
+      } else {
+        print current_model "\t" image
+      }
+    }
+  ' "$yaml_file"
 }

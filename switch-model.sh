@@ -4,8 +4,8 @@ source ./helpers.sh
 
 # Check if config.yaml exists
 if [ ! -f "config.yaml" ]; then
-    echo "Error: config.yaml not found!"
-    exit 1
+  echo "Error: config.yaml not found!"
+  exit 1
 fi
 
 # Get list of model names from yaml for pattern matching
@@ -15,9 +15,9 @@ model_names=$(parse_yaml "config.yaml" | cut -f1 | paste -sd "|" -)
 running_container=$(docker ps --format '{{.Names}}' | grep -E "(${model_names})")
 
 if [ -n "$running_container" ]; then
-    echo "Currently running model: $running_container"
+  echo "Currently running model: $running_container"
 else
-    echo "No model is currently running"
+  echo "No model is currently running"
 fi
 
 # Read and parse models from yaml
@@ -29,18 +29,23 @@ declare -A model_image_map
 declare -A model_name_map
 counter=1
 for model in "${models[@]}"; do
-    name=$(echo "$model" | cut -f1)
-    image=$(echo "$model" | cut -f2)
+  # Split the line into fields
+  IFS=$'\t' read -r name image is_default <<< "$model"
 
-    # Skip if this is the running container
-    if [ "$name" = "$running_container" ]; then
-        continue
-    fi
+  if [ "$name" = "$running_container" ]; then
+    continue
+  fi
 
+  # Display name with default indicator if applicable
+  if [ "$is_default" = "default" ]; then
+    echo "$counter) $name (default)"
+  else
     echo "$counter) $name"
-    model_image_map[$counter]="$image"
-    model_name_map[$counter]="$name"
-    ((counter++))
+  fi
+
+  model_image_map[$counter]="$image"
+  model_name_map[$counter]="$name"
+  ((counter++))
 done
 
 # Get user selection
@@ -49,23 +54,22 @@ read -r selection
 
 # Validate input
 if [[ "$selection" == "q" ]]; then
-    echo "Exiting..."
-    exit 0
+  echo "Exiting..."
+  exit 0
 fi
 
 if ! [[ "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" -ge "$counter" ]; then
-    echo "Invalid selection!"
-    exit 1
+  echo "Invalid selection!"
+  exit 1
 fi
 
 # Get selected image and name
 selected_image="${model_image_map[$selection]}"
 selected_name="${model_name_map[$selection]}"
 
-# Update .env file
 if [ ! -f ".env" ]; then
-    echo "Error: .env file not found!"
-    exit 1
+  echo "Error: .env file not found!"
+  exit 1
 fi
 
 # Create backup of .env

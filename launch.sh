@@ -28,57 +28,64 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Function to display model selection menu and get user choice
+# Function to display model selection menu and get user choice
 select_model() {
-    local yaml_file=$1
-    local current_model=$2
+  local yaml_file=$1
+  local current_model=$2
 
-    # Get list of models
-    readarray -t models < <(parse_yaml "$yaml_file")
+  # Get list of models
+  readarray -t models < <(parse_yaml "$yaml_file")
 
-    # Display currently running model
-    if [ -n "$current_model" ]; then
-        echo "Currently running model: $current_model"
+  # Display currently running model
+  if [ -n "$current_model" ]; then
+      echo "Currently running model: $current_model"
+  else
+      echo "No model is currently running"
+  fi
+
+  echo -e "\nYou can switch to one of the following models:"
+
+  # Build selection menu and map
+  declare -A model_map
+  counter=1
+  for model in "${models[@]}"; do
+    # Split the line into fields
+    IFS=$'\t' read -r name image is_default <<< "$model"
+
+    if [ "$name" = "$current_model" ]; then
+        continue
+    fi
+
+    # Display name with default indicator if applicable
+    if [ "$is_default" = "default" ]; then
+        echo "$counter) $name (default)"
     else
-        echo "No model is currently running"
-    fi
-
-    echo -e "\nYou can switch to one of the following models:"
-
-    # Build selection menu and map
-    declare -A model_map
-    counter=1
-    for model in "${models[@]}"; do
-        name=$(echo "$model" | cut -f1)
-        value=$(echo "$model" | cut -f2)
-
-        if [ "$name" = "$current_model" ]; then
-            continue
-        fi
-
         echo "$counter) $name"
-        model_map[$counter]="$name:$value"
-        ((counter++))
-    done
-
-    if [ $counter -eq 1 ]; then
-        echo "No other models available to switch to."
-        exit 0
     fi
 
-    echo -e "\nEnter the number of the model you want to switch to (or 'q' to quit):"
-    read -r selection
+    model_map[$counter]="$name:$image"
+    ((counter++))
+  done
 
-    if [[ "$selection" == "q" ]]; then
-        echo "Exiting..."
-        exit 0
-    fi
+  if [ $counter -eq 1 ]; then
+    echo "No other models available to switch to."
+    exit 0
+  fi
 
-    if ! [[ "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" -ge "$counter" ]; then
-        echo "Invalid selection!"
-        exit 1
-    fi
+  echo -e "\nEnter the number of the model you want to switch to (or 'q' to quit):"
+  read -r selection
 
-    echo "${model_map[$selection]}"
+  if [[ "$selection" == "q" ]]; then
+    echo "Exiting..."
+    exit 0
+  fi
+
+  if ! [[ "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" -ge "$counter" ]; then
+    echo "Invalid selection!"
+    exit 1
+  fi
+
+  echo "${model_map[$selection]}"
 }
 
 get_default_model() {
@@ -90,31 +97,31 @@ get_default_model() {
   local default_image=""
   local first_model=""
   local first_image=""
+  declare -A model_images
 
   for data in "${model_data[@]}"; do
-    local name=$(echo "$data" | cut -f1)
-    local value=$(echo "$data" | cut -f2)
+    # Split the line into fields
+    IFS=$'\t' read -r name image is_default <<< "$data"
 
-    if [ -z "$first_model" ] && [ "$value" != "default" ]; then
+    if [ -z "$first_model" ] && [ "$is_default" != "default" ]; then
       first_model="$name"
-      first_image="$value"
+      first_image="$image"
     fi
 
-    if [ "$value" != "default" ] && [ -n "$name" ]; then
-      model_images["$name"]="$value"
-    fi
+    model_images["$name"]="$image"
 
-    if [ "$value" = "default" ]; then
+    if [ "$is_default" = "default" ]; then
       default_model="$name"
+      default_image="$image"
     fi
   done
 
   local selected_model=""
   local selected_image=""
 
-  if [ -n "$default_model" ] && [ -n "${model_images[$default_model]}" ]; then
+  if [ -n "$default_model" ]; then
     selected_model="$default_model"
-    selected_image="${model_images[$default_model]}"
+    selected_image="$default_image"
   elif [ -n "$first_model" ]; then
     selected_model="$first_model"
     selected_image="$first_image"

@@ -121,9 +121,7 @@ model_image=$(echo "$model_info" | cut -d':' -f2-)
 
 echo "Default model: $model_name with image: $model_image"
 set_and_export_env_var "MODEL_IMAGE" "$model_image" "$UPGRADE_MODEL"
-
-MODEL_NAME="lfm-$model_name"
-set_and_export_env_var "MODEL_NAME" "$MODEL_NAME" true
+set_and_export_env_var "MODEL_NAME" "$model_name" true
 
 set_and_export_env_var "POSTGRES_DB" "liquid_labs"
 set_and_export_env_var "POSTGRES_USER" "local_user"

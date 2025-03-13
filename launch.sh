@@ -201,12 +201,16 @@ set_and_export_env_var "POSTGRES_PASSWORD" "local_password"
 # name in the docker compose file.
 set_and_export_env_var "DATABASE_URL" "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@liquid-labs-postgres:5432/$POSTGRES_DB" true
 
+echo
+
 # Handle model selection logic
 declare -A model_images
 current_model=""
 
 if [ "$SWITCH_MODEL" = true ]; then
   # Case 1: User wants to switch models
+  echo "Switching model..."
+
   if [ -f "$ENV_FILE" ] && grep -q "^MODEL_NAME=" "$ENV_FILE"; then
     current_model=$(grep "^MODEL_NAME=" "$ENV_FILE" | cut -d '=' -f2-)
   fi
@@ -236,11 +240,13 @@ elif ! $ENV_EXISTS || ! grep -q "^MODEL_NAME=" "$ENV_FILE" || ! grep -q "^MODEL_
   model_name=$(echo "$model_info" | cut -d':' -f1)
   model_image=$(echo "$model_info" | cut -d':' -f2-)
 
+  echo "Launching a brand new on-prem stack..."
   echo "Using model: $model_name with image: $model_image"
   set_and_export_env_var "MODEL_IMAGE" "$model_image" true
   set_and_export_env_var "MODEL_NAME" "$model_name" true
 else
   # Case 3: Use existing model from .env file
+  echo "Re-launching the existing on-prem stack..."
   model_name=$(grep "^MODEL_NAME=" "$ENV_FILE" | cut -d '=' -f2-)
   model_image=$(grep "^MODEL_IMAGE=" "$ENV_FILE" | cut -d '=' -f2-)
   echo "Using existing model: $model_name with image: $model_image"

@@ -193,7 +193,7 @@ if [ "$SWITCH_MODEL" = true ]; then
   # Case 1: User wants to switch models
   echo "Switching model..."
 
-  source ./switch-model.sh
+  exec ./switch-model.sh
 elif ! $ENV_EXISTS || ! grep -q "^MODEL_NAME=" "$ENV_FILE" || ! grep -q "^MODEL_IMAGE=" "$ENV_FILE" || [ "$UPGRADE_MODEL" = true ]; then
   # Case 2: No .env file or model info missing or upgrade requested - use default from YAML
   model_info=$(get_default_model "$YAML_FILE")

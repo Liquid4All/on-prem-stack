@@ -10,6 +10,7 @@ source ./helpers.sh
 UPGRADE_STACK=false
 UPGRADE_MODEL=false
 SWITCH_MODEL=false
+MOUNT_DIR=$(pwd)/local-files
 
 if [ ! -f "$YAML_FILE" ]; then
   echo "ERROR: $YAML_FILE not found. Please contact Liquid support to get a $YAML_FILE file first."
@@ -21,6 +22,16 @@ while [[ "$#" -gt 0 ]]; do
     --upgrade-stack) UPGRADE_STACK=true ;;
     --upgrade-model) UPGRADE_MODEL=true ;;
     --switch-model) SWITCH_MODEL=true ;;
+    --mount-dir)
+      REAL_INPUT_DIR=$(realpath "$2")
+      MOUNT_DIR="$2"
+      if [ ! -d "$REAL_INPUT_DIR" ]; then
+        echo "ERROR: Input directory is resolved to $REAL_INPUT_DIR but it does not exist"
+        exit 1
+      fi
+      MOUNT_DIR=$REAL_INPUT_DIR
+      shift
+      ;;
     *) echo "Unknown parameter: $1" >&2; exit 1 ;;
   esac
   shift
@@ -178,6 +189,17 @@ set_and_export_env_var "POSTGRES_PASSWORD" "local_password"
 # The url is liquid-labs-postgres, which must be the same as the service
 # name in the docker compose file.
 set_and_export_env_var "DATABASE_URL" "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@liquid-labs-postgres:5432/$POSTGRES_DB" true
+
+if [ -n "$MOUNT_DIR" ]; then
+  # Set mount directory if provided
+  set_and_export_env_var "LOCAL_FILES_DIR" "$MOUNT_DIR" true
+  echo "Local files directory set to: $MOUNT_DIR"
+else
+  # Unset the variable if it exists and no mount dir is provided
+  if grep -q "^LOCAL_FILES_DIR=" "$ENV_FILE"; then
+    sed -i '/^LOCAL_FILES_DIR=/d' "$ENV_FILE"
+  fi
+fi
 
 # Handle model selection logic
 declare -A model_images

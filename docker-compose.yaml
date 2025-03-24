@@ -46,6 +46,8 @@ services:
               capabilities: [ gpu ]
     volumes_from:
       - liquid-labs-model-volume
+    volumes:
+      - ${LOCAL_FILES_DIR:-/tmp}:/local-files
     networks:
       - liquid_labs_network
 

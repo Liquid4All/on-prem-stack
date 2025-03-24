@@ -2,7 +2,7 @@
 
 API_SECRET=$(grep "API_SECRET=" .env | grep -v "^#" | cut -d"=" -f2)
 
-DEFAULT_IMAGE_PATH="https://cdn.prod.website-files.com/6557a2b6957fcb7aeb0efcf0/6717bdfe548ed731c3fc38c4_ramin-hasani-p-500.png"
+DEFAULT_IMAGE_PATH="file:///local-files/image.jpg"
 
 while [[ $# -gt 0 ]]; do
   case $1 in

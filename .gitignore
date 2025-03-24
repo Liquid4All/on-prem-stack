@@ -1,2 +1,4 @@
 .env*
 *.zip
+local-files/*
+!local-files/.keep

@@ -59,6 +59,7 @@ Currently, each on-prem stack can only run one model at a time. We will improve 
 | `shutdown.sh` | Script to shut down the stack |
 | `connect-db.sh` | Script to connect to the Postgres database |
 | `test-api.sh` | Script to test the inference server API |
+| `test-vlm.sh` | Script to test the VLM API with image input |
 | `switch-model.sh` | Script to switch the model to run, equivalent to `./launch.sh --switch-model` |
 | `run-vllm.sh` | Script to launch any model from Hugging Face |
 | `rm-vllm.sh` | Script to remove a model launched by `run-vllm.sh` |
@@ -88,6 +89,37 @@ To upgrade the model, change the model image in `config.yaml` and run:
 ./shutdown.sh
 ./launch.sh
 ```
+
+## Image input
+
+When running VLM, you can pass in an image as input. The user message looks like this:
+
+```json
+{
+  "role": "user",
+  "content": [
+    {
+      "type": "image_url",
+      "image_url": {
+        "url": "<image-url>"
+      }
+    },
+    {
+      "type": "text",
+      "text": "<text>"
+    }
+  ]
+}
+```
+
+The `<image-url>` can one of the following:
+- Remote: `https://<image-url>`
+- Base64: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...`
+- Local: `file:///local-files/<local-filename>`
+
+By default, the `launch.sh` script will mount the `/local-files` directory under the project root to the `/local-files` directory in the container. You can pass in `--mount-dir` to use a different local directory. Any file under the local directory will be accessible in the container. The file path will be `file:///local-files/<file-name>`.
+
+You can run `./test-vlm.sh` to test the VLM API with the default image input.
 
 ## Connect to the Database
 

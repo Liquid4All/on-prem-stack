@@ -193,7 +193,8 @@ set_and_export_env_var "DATABASE_URL" "postgresql://$POSTGRES_USER:$POSTGRES_PAS
 if [ -n "$MOUNT_DIR" ]; then
   # Set mount directory if provided
   set_and_export_env_var "LOCAL_FILES_DIR" "$MOUNT_DIR" true
-  echo "Local files directory set to: $MOUNT_DIR"
+  echo "Local files directory mounted in vLLM container: $MOUNT_DIR"
+  echo "Any files under there can be access as file:///local-files/<filename>"
 else
   # Unset the variable if it exists and no mount dir is provided
   if grep -q "^LOCAL_FILES_DIR=" "$ENV_FILE"; then

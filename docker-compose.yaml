@@ -13,6 +13,8 @@ services:
       - /model
       - --served-model-name
       - ${MODEL_NAME}
+      - --allowed_local_media_path
+      - "/local-files"
       - --port
       - "9000"
       - --max-logprobs

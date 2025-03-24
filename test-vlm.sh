@@ -11,6 +11,7 @@ curl http://0.0.0.0:8000/v1/models \
 echo -e "\n"
 
 MODEL_NAME=$(grep "MODEL_NAME=" .env | grep -v "^#" | cut -d"=" -f2)
+IMAGE_PATH="/local-files/image.jpg"
 
 echo "--------------------------------"
 echo "Test model call"
@@ -27,7 +28,7 @@ curl http://0.0.0.0:8000/v1/chat/completions \
         {
           "type": "image_url",
           "image_url": {
-            "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+            "url": "file://'"${IMAGE_PATH}"'"
           }
         },
         {

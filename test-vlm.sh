@@ -2,7 +2,7 @@
 
 API_SECRET=$(grep "API_SECRET=" .env | grep -v "^#" | cut -d"=" -f2)
 
-DEFAULT_IMAGE_PATH="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+DEFAULT_IMAGE_PATH="https://cdn.prod.website-files.com/6557a2b6957fcb7aeb0efcf0/6717bdfe548ed731c3fc38c4_ramin-hasani-p-500.png"
 
 while [[ $# -gt 0 ]]; do
   case $1 in

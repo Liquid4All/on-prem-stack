@@ -179,7 +179,7 @@ fi
 set_and_export_env_var "JWT_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
-set_and_export_env_var "STACK_VERSION" "c3d7dbacd1" "$UPGRADE_STACK"
+set_and_export_env_var "STACK_VERSION" "e5bb8474e8" "$UPGRADE_STACK"
 
 set_and_export_env_var "POSTGRES_DB" "liquid_labs"
 set_and_export_env_var "POSTGRES_USER" "local_user"

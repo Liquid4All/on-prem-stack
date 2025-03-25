@@ -43,6 +43,24 @@ When running for subsequent times, the launch script will consume the environmen
 
 Two environment variables are constructed from other variables: `DATABASE_URL` and `MODEL_NAME`. Please do not modify them directly in the `.env` file.
 
+## Smoke test
+
+After the stack is launched, you can run the `test-api.sh` script to test the API. The script will run output the available models, and call the `chat/completions` API with a test prompt.
+
+```bash
+# llm smoke test
+./test-api.sh
+
+# vlm smoke test
+./test-api.sh --vlm
+
+# custom image input
+./test-api.sh --vlm --image-url <image-url>
+
+# custom model and port
+./test-api.sh --model-name <model-name> --port <port-number>
+```
+
 ## Models
 
 Currently, each on-prem stack can only run one model at a time. We will improve on this soon. The launch script runs the default model specified in `config.yaml`. To switch models, run `./launch.sh --switch-model` and select the desired model to run. The script will then stop the current model and start the newly chosen model.
@@ -59,7 +77,6 @@ Currently, each on-prem stack can only run one model at a time. We will improve 
 | `shutdown.sh` | Script to shut down the stack |
 | `connect-db.sh` | Script to connect to the Postgres database |
 | `test-api.sh` | Script to test the inference server API |
-| `test-vlm.sh` | Script to test the VLM API with image input |
 | `switch-model.sh` | Script to switch the model to run, equivalent to `./launch.sh --switch-model` |
 | `run-vllm.sh` | Script to launch any model from Hugging Face |
 | `rm-vllm.sh` | Script to remove a model launched by `run-vllm.sh` |

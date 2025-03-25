@@ -51,14 +51,14 @@ After the stack is launched, you can run the `test-api.sh` script to test the AP
 # llm smoke test
 ./test-api.sh
 
+# llm test with custom model and port
+./test-api.sh --model-name <model-name> --port <port-number>
+
 # vlm smoke test
 ./test-api.sh --vlm
 
-# custom image input
+# vlm test with custom image
 ./test-api.sh --vlm --image-url <image-url>
-
-# custom model and port
-./test-api.sh --model-name <model-name> --port <port-number>
 ```
 
 ## Models
@@ -134,9 +134,7 @@ The `<image-url>` can one of the following:
 - Base64: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...`
 - Local: `file:///local-files/<local-filename>`
 
-By default, the `launch.sh` script will mount the `/local-files` directory under the project root to the `/local-files` directory in the container. You can pass in `--mount-dir` to use a different local directory. Any file under the local directory will be accessible in the container. The file path will be `file:///local-files/<file-name>`.
-
-You can run `./test-vlm.sh` to test the VLM API with the default image input.
+By default, the `launch.sh` or `run-checkpoint.sh` script will mount the `local-files` directory under the project root to the `/local-files` directory in the container. You can pass in `--mount-dir` to use a different local directory (e.g. `run-checkpoint.sh --mount-dir <dir-to-mount>`). Any file under the mounted directory will be accessible in the container. The file path will become `file:///local-files/<file-name>`.
 
 ## Connect to the Database
 
@@ -302,5 +300,6 @@ curl http://0.0.0.0:9000/v1/chat/completions \
 | `--gpu` | No | `all` | GPU device to use (e.g. to use the first gpu: `0`, to use the second gpu: `1`) |
 | `--gpu-memory-utilization` | No | `0.6` | GPU memory utilization for the inference server. Decrease this value when running into out-of-memory issue. |
 | `--max-num-seqs` | No | | Maximum number of sequences per iteration. Decrease this value when running into out-of-memory issue. |
+| `--mount-dir` | No | `./local-files` | File path to be mounted in the Docker container as `/local-files`. This is useful for VLM only. |
 
 </details>

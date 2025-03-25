@@ -4,7 +4,5 @@ models:
   lfm-7b-e:
     image: "liquidai/lfm-7b-e:0.0.1"
     default: true
-  vlfm-1b-e:
-    image: "liquidai/vlfm-1b-e:0.0.1"
   vlfm-3b-e:
     image: "liquidai/vlfm-3b-e:0.0.1"

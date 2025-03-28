@@ -7,9 +7,8 @@ YAML_FILE="config.yaml"
 
 source ./helpers.sh
 
-UPGRADE_STACK=false
-UPGRADE_MODEL=false
 SWITCH_MODEL=false
+UPGRADE_VLLM=false
 MOUNT_DIR=$(pwd)/local-files
 
 if [ ! -f "$YAML_FILE" ]; then
@@ -19,9 +18,8 @@ fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    --upgrade-stack) UPGRADE_STACK=true ;;
-    --upgrade-model) UPGRADE_MODEL=true ;;
     --switch-model) SWITCH_MODEL=true ;;
+    --upgrade-vllm) UPGRADE_VLLM=true ;;
     --mount-dir)
       REAL_INPUT_DIR=$(realpath "$2")
       MOUNT_DIR="$2"
@@ -37,7 +35,6 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
-# Function to display model selection menu and get user choice
 # Function to display model selection menu and get user choice
 select_model() {
   local yaml_file=$1
@@ -179,7 +176,10 @@ fi
 set_and_export_env_var "JWT_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
-set_and_export_env_var "STACK_VERSION" "e5bb8474e8" "$UPGRADE_STACK"
+
+set_and_export_env_var "VLLM_VERSION" "e5bb8474e8" "$UPGRADE_VLLM"
+set_and_export_env_var "PYTHON_API_VERSION" "d2501caa69" true
+set_and_export_env_var "WEB_VERSION" "32faf06a58" true
 
 set_and_export_env_var "POSTGRES_DB" "liquid_labs"
 set_and_export_env_var "POSTGRES_USER" "local_user"
@@ -211,7 +211,7 @@ if [ "$SWITCH_MODEL" = true ]; then
   echo "Switching model..."
 
   exec ./switch-model.sh
-elif ! $ENV_EXISTS || ! grep -q "^MODEL_NAME=" "$ENV_FILE" || ! grep -q "^MODEL_IMAGE=" "$ENV_FILE" || [ "$UPGRADE_MODEL" = true ]; then
+elif ! $ENV_EXISTS || ! grep -q "^MODEL_NAME=" "$ENV_FILE" || ! grep -q "^MODEL_IMAGE=" "$ENV_FILE"; then
   # Case 2: No .env file or model info missing or upgrade requested - use default from YAML
   model_info=$(get_default_model "$YAML_FILE")
   model_name=$(echo "$model_info" | cut -d':' -f1)

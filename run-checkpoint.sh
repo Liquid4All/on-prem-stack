@@ -99,8 +99,8 @@ if docker ps -a --format '{{.Names}}' | grep -q "^$MODEL_NAME$"; then
     docker rm -f "$MODEL_NAME" >/dev/null 2>&1
 fi
 
-STACK_VERSION=$(grep "STACK_VERSION=" .env | grep -v "^#" | cut -d"=" -f2)
-IMAGE_NAME=liquidai/liquid-labs-vllm:${STACK_VERSION}
+VLLM_VERSION=$(grep "VLLM_VERSION=" .env | grep -v "^#" | cut -d"=" -f2)
+IMAGE_NAME=liquidai/liquid-labs-vllm:${VLLM_VERSION}
 
 echo "Launching $MODEL_NAME from $MODEL_CHECKPOINT_ABS"
 echo "GPU: $GPU"

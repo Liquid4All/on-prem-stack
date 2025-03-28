@@ -178,8 +178,8 @@ set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 
 set_and_export_env_var "VLLM_VERSION" "e5bb8474e8"
-set_and_export_env_var "PYTHON_API_VERSION" "e5bb8474e8"
-set_and_export_env_var "WEB_VERSION" "e5bb8474e8"
+set_and_export_env_var "PYTHON_API_VERSION" "d2501caa69"
+set_and_export_env_var "WEB_VERSION" "d2501caa69"
 
 set_and_export_env_var "POSTGRES_DB" "liquid_labs"
 set_and_export_env_var "POSTGRES_USER" "local_user"

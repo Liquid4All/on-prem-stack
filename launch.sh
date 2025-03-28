@@ -7,7 +7,6 @@ YAML_FILE="config.yaml"
 
 source ./helpers.sh
 
-UPGRADE_MODEL=false
 SWITCH_MODEL=false
 UPGRADE_VLLM=false
 MOUNT_DIR=$(pwd)/local-files
@@ -19,7 +18,6 @@ fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    --upgrade-model) UPGRADE_MODEL=true ;;
     --switch-model) SWITCH_MODEL=true ;;
     --upgrade-vllm) UPGRADE_VLLM=true ;;
     --mount-dir)
@@ -213,7 +211,7 @@ if [ "$SWITCH_MODEL" = true ]; then
   echo "Switching model..."
 
   exec ./switch-model.sh
-elif ! $ENV_EXISTS || ! grep -q "^MODEL_NAME=" "$ENV_FILE" || ! grep -q "^MODEL_IMAGE=" "$ENV_FILE" || [ "$UPGRADE_MODEL" = true ]; then
+elif ! $ENV_EXISTS || ! grep -q "^MODEL_NAME=" "$ENV_FILE" || ! grep -q "^MODEL_IMAGE=" "$ENV_FILE"; then
   # Case 2: No .env file or model info missing or upgrade requested - use default from YAML
   model_info=$(get_default_model "$YAML_FILE")
   model_name=$(echo "$model_info" | cut -d':' -f1)

@@ -9,6 +9,7 @@ source ./helpers.sh
 
 UPGRADE_MODEL=false
 SWITCH_MODEL=false
+UPGRADE_VLLM=false
 MOUNT_DIR=$(pwd)/local-files
 
 if [ ! -f "$YAML_FILE" ]; then
@@ -20,6 +21,7 @@ while [[ "$#" -gt 0 ]]; do
   case $1 in
     --upgrade-model) UPGRADE_MODEL=true ;;
     --switch-model) SWITCH_MODEL=true ;;
+    --upgrade-vllm) UPGRADE_VLLM=true ;;
     --mount-dir)
       REAL_INPUT_DIR=$(realpath "$2")
       MOUNT_DIR="$2"
@@ -177,7 +179,7 @@ set_and_export_env_var "JWT_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 
-set_and_export_env_var "VLLM_VERSION" "e5bb8474e8"
+set_and_export_env_var "VLLM_VERSION" "e5bb8474e8" "$UPGRADE_VLLM"
 set_and_export_env_var "PYTHON_API_VERSION" "d2501caa69" true
 set_and_export_env_var "WEB_VERSION" "32faf06a58" true
 

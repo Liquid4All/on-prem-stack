@@ -100,11 +100,11 @@ To update the stack manually to a specific version, change `VLLM_VERSION` in the
 ./launch.sh
 ```
 
-To upgrade the model, change the model image in `config.yaml` and run:
+To upgrade the model, change the model image and version in `config.yaml` and run:
 
 ```bash
 ./shutdown.sh
-./launch.sh
+./switch-model.sh
 ```
 
 ## Image input

@@ -7,7 +7,6 @@ YAML_FILE="config.yaml"
 
 source ./helpers.sh
 
-UPGRADE_STACK=false
 UPGRADE_MODEL=false
 SWITCH_MODEL=false
 MOUNT_DIR=$(pwd)/local-files
@@ -19,7 +18,6 @@ fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    --upgrade-stack) UPGRADE_STACK=true ;;
     --upgrade-model) UPGRADE_MODEL=true ;;
     --switch-model) SWITCH_MODEL=true ;;
     --mount-dir)
@@ -37,7 +35,6 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
-# Function to display model selection menu and get user choice
 # Function to display model selection menu and get user choice
 select_model() {
   local yaml_file=$1
@@ -179,7 +176,10 @@ fi
 set_and_export_env_var "JWT_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
-set_and_export_env_var "STACK_VERSION" "e5bb8474e8" "$UPGRADE_STACK"
+
+set_and_export_env_var "VLLM_VERSION" "e5bb8474e8"
+set_and_export_env_var "PYTHON_API_VERSION" "e5bb8474e8"
+set_and_export_env_var "WEB_VERSION" "e5bb8474e8"
 
 set_and_export_env_var "POSTGRES_DB" "liquid_labs"
 set_and_export_env_var "POSTGRES_USER" "local_user"

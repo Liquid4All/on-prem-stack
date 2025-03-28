@@ -6,7 +6,7 @@ services:
       - liquid_labs_network
 
   liquid-labs-vllm:
-    image: liquidai/liquid-labs-vllm:${STACK_VERSION}
+    image: liquidai/liquid-labs-vllm:${VLLM_VERSION}
     container_name: ${MODEL_NAME}
     command:
       - --model
@@ -54,7 +54,7 @@ services:
       - liquid_labs_network
 
   liquid-labs-python-api:
-    image: liquidai/liquid-labs-python-api:${STACK_VERSION}
+    image: liquidai/liquid-labs-python-api:${PYTHON_API_VERSION}
     container_name: liquid-labs-python-api
     depends_on:
       liquid-labs-vllm:
@@ -73,7 +73,7 @@ services:
       - ENV=internal
       - IS_DOCKER=true
       - CONTAINER_PORT=9000
-      - VLLM_IMAGE_NAME=liquidai/liquid-labs-vllm:${STACK_VERSION}
+      - VLLM_IMAGE_NAME=liquidai/liquid-labs-vllm:${VLLM_VERSION}
       - JWT_SECRET=${JWT_SECRET}
       - API_SECRET=${API_SECRET}
       - NVIDIA_VISIBLE_DEVICES=all
@@ -117,7 +117,7 @@ services:
       retries: 5
 
   liquid-labs-web:
-    image: liquidai/liquid-labs-web:${STACK_VERSION}
+    image: liquidai/liquid-labs-web:${WEB_VERSION}
     container_name: liquid-labs-web
     depends_on:
       liquid-labs-postgres:

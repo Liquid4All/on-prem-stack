@@ -2,3 +2,4 @@
 *.zip
 local-files/*
 !local-files/.keep
+config.yaml

@@ -86,14 +86,14 @@ Currently, each on-prem stack can only run one model at a time. We will improve 
 
 ## Update
 
-To update stack to the latest version, pull the latest changes from this repository, and run the launch script with `--upgrade-stack`:
+As long as this repository is up to date, the Web and Python API containers are upgraded to the latest version automatically. But the vLLM container is not for compatibility reasons. To update vLLM container to the latest version, pull the latest changes from this repository, and run the launch script with `--upgrade-vllm`:
 
 ```bash
 ./shutdown.sh
-./launch.sh [--upgrade-stack]
+./launch.sh [--upgrade-vllm]
 ```
 
-To update the stack manually to a specific version, change `STACK_VERSION` in the `.env` file and run:
+To update the stack manually to a specific version, change `VLLM_VERSION` in the `.env` file and run:
 
 ```bash
 ./shutdown.sh

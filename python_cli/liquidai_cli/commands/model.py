@@ -147,7 +147,7 @@ def run_checkpoint(
 @app.command()
 def list():
     """List running models."""
-    containers = docker_helper.list_containers("vllm/vllm-openai")
+    containers = docker_helper.list_containers("liquidai/liquid-labs-vllm")
 
     if not containers:
         typer.echo("No running vLLM containers found.")
@@ -179,7 +179,7 @@ def stop(
         return
 
     # Interactive mode if no name provided
-    containers = docker_helper.list_containers("vllm/vllm-openai")
+    containers = docker_helper.list_containers("liquidai/liquid-labs-vllm")
     if not containers:
         typer.echo("No running vLLM containers found.")
         return

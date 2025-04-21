@@ -60,9 +60,19 @@ class DockerHelper:
 
     def list_containers(self, ancestor: str) -> List[Dict[str, Any]]:
         """List containers by ancestor image."""
-        containers = self.client.containers.list(filters={"ancestor": ancestor})
+        matching_containers = set()
+        matching_containers.update(self.client.containers.list(filters={"ancestor": ancestor}))
+
+        # Get all images that match the ancestor image name and check their containers
+        image_base_name = ancestor.split(":")[0]
+        images = self.client.images.list(name=image_base_name)
+        for image in images:
+            containers = self.client.containers.list(
+                filters={"ancestor": image.id}
+            )
+            matching_containers.update(containers)
         result = []
-        for c in containers:
+        for c in matching_containers:
             ports = {}
             try:
                 network_settings = c.attrs.get("NetworkSettings", {})

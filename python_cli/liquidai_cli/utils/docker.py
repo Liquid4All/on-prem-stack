@@ -5,22 +5,25 @@ from typing import List, Dict, Any
 import docker
 from docker.errors import NotFound
 from pathlib import Path
+import logging 
 
+logger = logging.getLogger(__name__)
 
 class DockerHelper:
-    def __init__(self):
+    def __init__(self, env_file: Path = Path(".env")):
         self.client = docker.from_env()
+        self.env_file = env_file
 
-    def run_compose(self, compose_file: Path, env_file: Path, action: str = "up") -> None:
+    def run_compose(self, compose_file: Path, action: str = "up") -> None:
         """Run docker-compose command."""
-        cmd = ["docker", "compose", "--env-file", str(env_file)]
+        cmd = ["docker", "compose", "--env-file", str(self.env_file)]
 
         if action == "up":
             cmd.extend(["up", "-d", "--wait"])
         elif action == "down":
             cmd.extend(["down"])
 
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd)
 
     def ensure_volume(self, name: str) -> None:
         """Ensure a Docker volume exists."""
@@ -77,4 +80,26 @@ class DockerHelper:
             container.stop()
             container.remove()
         except NotFound:
+            pass
+
+    def set_and_export_env_var(self, key: str, value: str) -> None:
+        """Set and export an environment variable into env_file."""
+        with open(self.env_file, "r") as f:
+            lines = f.readlines()
+        # Check if the key already exists
+        for i, line in enumerate(lines):
+            if line.startswith(key):
+                lines[i] = f"{key}={value}\n"
+                break
+        else:
+            lines.append(f"{key}={value}\n")
+        # Write the updated lines back to the file
+        with open(self.env_file, "w") as f:
+            f.writelines(lines)
+
+    def remove_env_file(self) -> None:
+        """Remove the env_file if it exists."""
+        try:
+            self.env_file.unlink()
+        except FileNotFoundError:
             pass

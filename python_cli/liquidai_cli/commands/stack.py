@@ -7,7 +7,7 @@ from liquidai_cli.utils.config import load_config, extract_model_name
 from liquidai_cli.utils.prompt import confirm_action
 
 app = typer.Typer(help="Manage the on-prem stack")
-docker_helper = DockerHelper()
+docker_helper = DockerHelper(Path(".env"))
 
 
 @app.command()
@@ -50,13 +50,13 @@ def launch(
     # Export environment variables for docker-compose
     for key, value in env_vars.items():
         typer.echo(f"Setting {key}")
-        docker_helper.set_env(key, value)
+        docker_helper.set_and_export_env_var(key, value)
 
     # Ensure postgres volume exists
     docker_helper.ensure_volume("postgres_data")
 
     # Launch stack
-    docker_helper.run_compose(Path("docker-compose.yaml"), Path(".env"))
+    docker_helper.run_compose(Path("docker-compose.yaml"))
 
     typer.echo("The on-prem stack is now running.")
     typer.echo(f"\nModel '{model_name}' is accessible at http://localhost:8000")
@@ -66,7 +66,7 @@ def launch(
 @app.command()
 def shutdown():
     """Shutdown the on-prem stack."""
-    docker_helper.run_compose(Path("docker-compose.yaml"), Path(".env"), action="down")
+    docker_helper.run_compose(Path("docker-compose.yaml"), action="down")
     typer.echo("Stack has been shut down.")
 
 
@@ -88,17 +88,14 @@ def purge(
         return
 
     # Shutdown containers
-    docker_helper.run_compose(Path("docker-compose.yaml"), Path(".env"), action="down")
+    docker_helper.run_compose(Path("docker-compose.yaml"), action="down")
 
     # Remove volume and network
     docker_helper.remove_volume("postgres_data")
     docker_helper.remove_network("liquid_labs_network")
 
     # Remove .env file
-    try:
-        Path(".env").unlink()
-    except FileNotFoundError:
-        pass
+    docker_helper.remove_env_file()
 
     typer.echo("Cleanup complete. All Liquid Labs components have been removed.")
 

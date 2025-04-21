@@ -14,6 +14,7 @@ docker_helper = DockerHelper(Path(".env"))
 def launch(
     upgrade_stack: bool = typer.Option(False, "--upgrade-stack", help="Upgrade stack version"),
     upgrade_model: bool = typer.Option(False, "--upgrade-model", help="Upgrade model version"),
+    compose_file: Path = typer.Option("docker-compose.yaml", "--compose-file", "-f", help="Path to docker-compose file"),
 ):
     """Launch the on-prem stack."""
     config = load_config()
@@ -56,7 +57,11 @@ def launch(
     docker_helper.ensure_volume("postgres_data")
 
     # Launch stack
-    docker_helper.run_compose(Path("docker-compose.yaml"))
+    try:
+        docker_helper.run_compose(compose_file)
+    except FileNotFoundError as e:
+        typer.echo(f"Error: {str(e)}", err=True)
+        raise typer.Exit(code=1)
 
     typer.echo("The on-prem stack is now running.")
     typer.echo(f"\nModel '{model_name}' is accessible at http://localhost:8000")
@@ -64,15 +69,22 @@ def launch(
 
 
 @app.command()
-def shutdown():
+def shutdown(
+    compose_file: Path = typer.Option("docker-compose.yaml", "--compose-file", "-f", help="Path to docker-compose file"),
+):
     """Shutdown the on-prem stack."""
-    docker_helper.run_compose(Path("docker-compose.yaml"), action="down")
+    try:
+        docker_helper.run_compose(compose_file, action="down")
+    except FileNotFoundError as e:
+        typer.echo(f"Error: {str(e)}", err=True)
+        raise typer.Exit(code=1)
     typer.echo("Stack has been shut down.")
 
 
 @app.command()
 def purge(
     force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation prompt"),
+    compose_file: Path = typer.Option("docker-compose.yaml", "--compose-file", "--compose", help="Path to docker-compose file"),
 ):
     """Remove all Liquid Labs components."""
     message = (
@@ -88,7 +100,11 @@ def purge(
         return
 
     # Shutdown containers
-    docker_helper.run_compose(Path("docker-compose.yaml"), action="down")
+    try:
+        docker_helper.run_compose(compose_file, action="down")
+    except FileNotFoundError as e:
+        typer.echo(f"Error: {str(e)}", err=True)
+        raise typer.Exit(code=1)
 
     # Remove volume and network
     docker_helper.remove_volume("postgres_data")

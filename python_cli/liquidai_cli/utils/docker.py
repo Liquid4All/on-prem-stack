@@ -16,6 +16,10 @@ class DockerHelper:
 
     def run_compose(self, compose_file: Path, action: str = "up") -> None:
         """Run docker-compose command."""
+        # Check if the compose file exists
+        if not compose_file.exists():
+            raise FileNotFoundError(f"Docker compose file '{compose_file}' not found. Please ensure the file exists before proceeding.")
+
         cmd = ["docker", "compose", "--env-file", str(self.env_file)]
 
         if action == "up":

@@ -39,6 +39,7 @@ def run_model_image(
     if result["StatusCode"] != 0:
         typer.echo(f"Error loading model data: {result['StatusCode']}", err=True)
         raise typer.Exit(1)
+    model_volume_loader_container.remove()
 
     typer.echo(f"Launching model container: {name}")
     stack_version = docker_helper.get_env_var("STACK_VERSION")

@@ -59,7 +59,7 @@ def launch(
     # Launch stack
     docker_helper.run_compose(Path("docker-compose.yaml"))
     # Run default model image
-    run_model_image(model_name, config["stack"]["model_image"])        
+    run_model_image(model_name, config["stack"]["model_image"])
 
     typer.echo("The on-prem stack is now running.")
 
@@ -137,7 +137,7 @@ def test():
     typer.echo("\nTesting model call...")
     for model_info in available_model_json["data"]:
         model_name = model_info["id"]
-        if model_info['status'] == "running":
+        if model_info["status"] == "running":
             typer.echo(f"Testing model: {model_name}")
             data = {
                 "model": model_name,

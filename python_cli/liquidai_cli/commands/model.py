@@ -10,14 +10,19 @@ from typing_extensions import Annotated
 app = typer.Typer(help="Manage ML models")
 docker_helper = DockerHelper()
 
+
 @app.command(name="run-model-image")
 def run_model_image(
     name: str = typer.Option(..., "--name", help="Name for the model"),
     model_image: str = typer.Option(..., "--image", help="Model image name"),
     port: Annotated[int, typer.Option("--port", help="Port to expose locally")] = 9000,
     gpu: Annotated[str, typer.Option("--gpu", help="Specific GPU index to use")] = "all",
-    gpu_memory_utilization: Annotated[float, typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use")] = 0.6,
-    max_num_seqs: Annotated[int, typer.Option("--max-num-seqs", help="Maximum number of sequences to generate in parallel")] = 750,
+    gpu_memory_utilization: Annotated[
+        float, typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use")
+    ] = 0.6,
+    max_num_seqs: Annotated[
+        int, typer.Option("--max-num-seqs", help="Maximum number of sequences to generate in parallel")
+    ] = 750,
     max_model_len: Annotated[int, typer.Option("--max-model-len", help="Maximum length of the model")] = 32768,
 ):
     """
@@ -33,7 +38,7 @@ def run_model_image(
         image=model_image,
         name=model_volume_loader_container_name,
         volumes={model_volume_name: {"bind": "/model", "mode": "rw"}},
-        network="liquid_labs_network"
+        network="liquid_labs_network",
     )
     result = model_volume_loader_container.wait()
     if result["StatusCode"] != 0:
@@ -44,10 +49,10 @@ def run_model_image(
     typer.echo(f"Launching model container: {name}")
     stack_version = docker_helper.get_env_var("STACK_VERSION")
     if gpu == "all":
-        device_requests=[{"Driver": "nvidia", "Count": -1, "Capabilities": [["gpu"]]}]
+        device_requests = [{"Driver": "nvidia", "Count": -1, "Capabilities": [["gpu"]]}]
     else:
         gpu_indices = gpu.split(",")
-        device_requests=[{"Driver": "nvidia", "DeviceIds": gpu_indices, "Capabilities": [["gpu"]]}]
+        device_requests = [{"Driver": "nvidia", "DeviceIds": gpu_indices, "Capabilities": [["gpu"]]}]
     docker_helper.run_container(
         image=f"liquidai/liquid-labs-vllm:{stack_version}",
         name=name,
@@ -79,7 +84,7 @@ def run_model_image(
             str(max_num_seqs),
             "--max-seq-len-to-capture",
             str(max_model_len),
-        ]
+        ],
     )
     typer.echo(f"Model '{name}' started successfully")
     typer.echo("Please wait 1-2 minutes for the model to load before making API calls")

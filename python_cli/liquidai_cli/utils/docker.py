@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class DockerHelper:
     def __init__(self, env_file: Path = Path(".env")):
         self.client = docker.from_env()
@@ -68,9 +69,7 @@ class DockerHelper:
         image_base_name = ancestor.split(":")[0]
         images = self.client.images.list(name=image_base_name)
         for image in images:
-            containers = self.client.containers.list(
-                filters={"ancestor": image.id}
-            )
+            containers = self.client.containers.list(filters={"ancestor": image.id})
             matching_containers.update(containers)
         result = []
         for c in matching_containers:
@@ -92,7 +91,7 @@ class DockerHelper:
             container.remove()
         except NotFound:
             pass
-    
+
     def get_env_var(self, key: str) -> str:
         """Get an environment variable from the env_file."""
         if key in self.env_dict:

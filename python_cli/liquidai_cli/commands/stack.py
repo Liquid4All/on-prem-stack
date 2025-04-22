@@ -5,6 +5,7 @@ from pathlib import Path
 from liquidai_cli.utils.docker import DockerHelper
 from liquidai_cli.utils.config import load_config, extract_model_name
 from liquidai_cli.utils.prompt import confirm_action
+from liquidai_cli.commands.model import run_model_image
 
 app = typer.Typer(help="Manage the on-prem stack")
 docker_helper = DockerHelper(Path(".env"))
@@ -57,15 +58,22 @@ def launch(
 
     # Launch stack
     docker_helper.run_compose(Path("docker-compose.yaml"))
+    # Run default model image
+    run_model_image(model_name, config["stack"]["model_image"])        
 
     typer.echo("The on-prem stack is now running.")
-    typer.echo(f"\nModel '{model_name}' is accessible at http://localhost:8000")
-    typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
 
 
 @app.command()
 def shutdown():
     """Shutdown the on-prem stack."""
+    # Shutdown running models
+    containers = docker_helper.list_containers("liquidai/liquid-labs-vllm")
+    for container in containers:
+        container_name = container["name"]
+        docker_helper.stop_container(container_name)
+        typer.echo(f"Stopped and removed model container: {container_name}")
+
     docker_helper.run_compose(Path("docker-compose.yaml"), action="down")
     typer.echo("Stack has been shut down.")
 
@@ -119,15 +127,23 @@ def test():
     # Test models endpoint
     typer.echo("Testing API call to get available models...")
     response = requests.get("http://0.0.0.0:8000/v1/models", headers=headers)
-    typer.echo(response.json())
+    available_model_json = response.json()
+    typer.echo(available_model_json)
+    if not available_model_json.get("data"):
+        typer.echo("Error: No models found in the response", err=True)
+        raise typer.Exit(1)
 
     # Test chat completion
     typer.echo("\nTesting model call...")
-    data = {
-        "model": model_name,
-        "messages": [{"role": "user", "content": "At which temperature does silver melt?"}],
-        "max_tokens": 128,
-        "temperature": 0,
-    }
-    response = requests.post("http://0.0.0.0:8000/v1/chat/completions", headers=headers, json=data)
-    typer.echo(response.json())
+    for model_info in available_model_json["data"]:
+        model_name = model_info["id"]
+        if model_info['status'] == "running":
+            typer.echo(f"Testing model: {model_name}")
+            data = {
+                "model": model_name,
+                "messages": [{"role": "user", "content": "At which temperature does silver melt?"}],
+                "max_tokens": 128,
+                "temperature": 0,
+            }
+            response = requests.post("http://0.0.0.0:8000/v1/chat/completions", headers=headers, json=data)
+            typer.echo(response.json())

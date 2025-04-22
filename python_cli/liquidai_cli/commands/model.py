@@ -5,9 +5,83 @@ from pathlib import Path
 from typing import Optional, Dict, List, cast
 from liquidai_cli.utils.docker import DockerHelper
 from liquidai_cli.utils.config import load_config
+from typing_extensions import Annotated
 
 app = typer.Typer(help="Manage ML models")
 docker_helper = DockerHelper()
+
+@app.command(name="run-model-image")
+def run_model_image(
+    name: str = typer.Option(..., "--name", help="Name for the model"),
+    model_image: str = typer.Option(..., "--image", help="Model image name"),
+    port: Annotated[int, typer.Option("--port", help="Port to expose locally")] = 9000,
+    gpu: Annotated[str, typer.Option("--gpu", help="Specific GPU index to use")] = "all",
+    gpu_memory_utilization: Annotated[float, typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use")] = 0.6,
+    max_num_seqs: Annotated[int, typer.Option("--max-num-seqs", help="Maximum number of sequences to generate in parallel")] = 750,
+    max_model_len: Annotated[int, typer.Option("--max-model-len", help="Maximum length of the model")] = 32768,
+):
+    """
+    Launch a model stored in a Docker image. Default Liquid Foundation Models (LFM) are delivered in this approach.
+    """
+    # Create a volume to cache the model data
+    typer.echo(f"Creating volume for model data: {name}")
+    model_volume_name = f"model_data_{name}"
+    docker_helper.ensure_volume(model_volume_name)
+    model_volume_loader_container_name = f"liquid-labs-model-volume-{name}"
+    typer.echo(f"Loading model data from image: {model_image}")
+    model_volume_loader_container = docker_helper.run_container(
+        image=model_image,
+        name=model_volume_loader_container_name,
+        volumes={model_volume_name: {"bind": "/model", "mode": "rw"}},
+        network="liquid_labs_network"
+    )
+    result = model_volume_loader_container.wait()
+    if result["StatusCode"] != 0:
+        typer.echo(f"Error loading model data: {result['StatusCode']}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo(f"Launching model container: {name}")
+    stack_version = docker_helper.get_env_var("STACK_VERSION")
+    if gpu == "all":
+        device_requests=[{"Driver": "nvidia", "Count": -1, "Capabilities": [["gpu"]]}]
+    else:
+        gpu_indices = gpu.split(",")
+        device_requests=[{"Driver": "nvidia", "DeviceIds": gpu_indices, "Capabilities": [["gpu"]]}]
+    docker_helper.run_container(
+        image=f"liquidai/liquid-labs-vllm:{stack_version}",
+        name=name,
+        device_requests=device_requests,
+        volumes={model_volume_name: {"bind": "/model", "mode": "ro"}},
+        network="liquid_labs_network",
+        command=[
+            "--model",
+            "/model",
+            "--served-model-name",
+            name,
+            "--port",
+            str(port),
+            "--max-logprobs",
+            "0",
+            "--dtype",
+            "bfloat16",
+            "--device",
+            "cuda",
+            "--enable-chunked-prefill",
+            "False",
+            "--tensor-parallel-size",
+            "1",
+            "--gpu-memory-utilization",
+            str(gpu_memory_utilization),
+            "--max-model-len",
+            str(max_model_len),
+            "--max-num-seqs",
+            str(max_num_seqs),
+            "--max-seq-len-to-capture",
+            str(max_model_len),
+        ]
+    )
+    typer.echo(f"Model '{name}' started successfully")
+    typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
 
 
 @app.command(name="run-hf")

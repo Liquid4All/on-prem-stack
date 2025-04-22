@@ -2,11 +2,11 @@ name: Python CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, python-cli ]
     paths:
       - 'python_cli/**'
   pull_request:
-    branches: [ main ]
+    branches: [ main, python-cli ]
     paths:
       - 'python_cli/**'
 

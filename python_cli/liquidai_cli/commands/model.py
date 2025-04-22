@@ -52,7 +52,8 @@ def run_model_image(
         device_requests = [{"Driver": "nvidia", "Count": -1, "Capabilities": [["gpu"]]}]
     else:
         gpu_indices = gpu.split(",")
-        device_requests = [{"Driver": "nvidia", "DeviceIds": gpu_indices, "Capabilities": [["gpu"]]}]
+        print(gpu_indices)
+        device_requests = [{"Driver": "nvidia", "DeviceIDs": gpu_indices, "Capabilities": [["gpu"]]}]
     docker_helper.run_container(
         image=f"liquidai/liquid-labs-vllm:{stack_version}",
         name=name,

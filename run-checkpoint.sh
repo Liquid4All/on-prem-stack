@@ -3,10 +3,11 @@
 source ./helpers.sh
 
 usage() {
-    echo "Usage: $0 --model-checkpoint <path-to-model-checkpoint> [--port <port_number>] [--gpu-memory-utilization <0.60>] [--max-num-seqs <600>] [--mount-dir <path>]"
+    echo "Usage: $0 --model-checkpoint <path-to-model-checkpoint> [--model-name] [--port <port_number>] [--gpu-memory-utilization <0.60>] [--max-num-seqs <600>] [--mount-dir <path>]"
     echo
     echo "Arguments:"
     echo "  --model-checkpoint        Path to the model checkpoint directory"
+    echo "  --model-name              Override model name (default: read from model_metadata.json)"
     echo "  --port                    Port to expose locally (default: 9000)"
     echo "  --gpu                     Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
     echo "  --gpu-memory-utilization  Fraction of GPU memory to use (default: 0.60)"
@@ -32,6 +33,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --model-checkpoint)
             MODEL_CHECKPOINT="$2"
+            shift 2
+            ;;
+        --model-name)
+            MODEL_NAME="$2"
             shift 2
             ;;
         --port)
@@ -87,10 +92,14 @@ if [ ! -f "$MODEL_METADATA_FILE" ]; then
     echo "Warning: model_metadata.json does not exist in the model checkpoint directory. If you are trying to run VLM, it will fail."
 fi
 
-MODEL_NAME=$(jq -r '.model_name' "$MODEL_METADATA_FILE")
 if [ -z "$MODEL_NAME" ]; then
-    echo "Error: model_name is not defined in model_metadata.json"
-    exit 1
+    if [ -f "$MODEL_METADATA_FILE" ]; then
+        echo "Reading model name from model_metadata.json"
+        MODEL_NAME=$(jq -r '.model_name' "$MODEL_METADATA_FILE")
+    else
+        echo "Error: model_name is not defined in model_metadata.json and no --model-name argument was provided."
+        exit 1
+    fi
 fi
 
 if docker ps -a --format '{{.Names}}' | grep -q "^$MODEL_NAME$"; then

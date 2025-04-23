@@ -10,6 +10,9 @@ from typing_extensions import Annotated
 app = typer.Typer(help="Manage ML models")
 docker_helper = DockerHelper()
 
+NANOSECONDS_IN_SECOND = 1_000_000_000
+HEALTHCHECK_INTERVAL = 30 * NANOSECONDS_IN_SECOND
+
 
 @app.command(name="run-model-image")
 def run_model_image(
@@ -82,6 +85,11 @@ def run_model_image(
             "--max-seq-len-to-capture",
             str(max_model_len),
         ],
+        healthcheck={
+            "test": f"curl --fail http://localhost:{port}/health || exit 1",
+            "interval": HEALTHCHECK_INTERVAL,
+            "start_period": HEALTHCHECK_INTERVAL,
+        },
     )
     typer.echo(f"Model '{name}' started successfully")
     typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
@@ -144,6 +152,11 @@ def run_huggingface(
             "--max-seq-len-to-capture",
             str(max_model_len),
         ],
+        healthcheck={
+            "test": f"curl --fail http://localhost:{port}/health || exit 1",
+            "interval": HEALTHCHECK_INTERVAL,
+            "start_period": HEALTHCHECK_INTERVAL,
+        },
     )
 
     typer.echo(f"Model '{name}' started successfully")
@@ -220,6 +233,11 @@ def run_checkpoint(
             "--max-seq-len-to-capture",
             "32768",
         ],
+        healthcheck={
+            "test": f"curl --fail http://localhost:{port}/health || exit 1",
+            "interval": HEALTHCHECK_INTERVAL,
+            "start_period": HEALTHCHECK_INTERVAL,
+        },
     )
 
     typer.echo(f"Model '{model_name}' started successfully")

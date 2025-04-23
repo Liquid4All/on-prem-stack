@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional, Dict, List, cast
 from liquidai_cli.utils.docker import DockerHelper
 from liquidai_cli.utils.config import load_config
+from liquidai_cli.utils.device import get_device_requests_from_gpus
 from typing_extensions import Annotated
 
 app = typer.Typer(help="Manage ML models")
@@ -48,15 +49,10 @@ def run_model_image(
 
     typer.echo(f"Launching model container: {name}")
     stack_version = docker_helper.get_env_var("STACK_VERSION")
-    if gpu == "all":
-        device_requests = [{"Driver": "nvidia", "Count": -1, "Capabilities": [["gpu"]]}]
-    else:
-        gpu_indices = gpu.split(",")
-        device_requests = [{"Driver": "nvidia", "DeviceIDs": gpu_indices, "Capabilities": [["gpu"]]}]
     docker_helper.run_container(
         image=f"liquidai/liquid-labs-vllm:{stack_version}",
         name=name,
-        device_requests=device_requests,
+        device_requests=get_device_requests_from_gpus(gpu),
         volumes={model_volume_name: {"bind": "/model", "mode": "ro"}},
         network="liquid_labs_network",
         command=[
@@ -94,14 +90,18 @@ def run_model_image(
 def run_huggingface(
     name: str = typer.Option(..., "--name", help="Name for the model container"),
     path: str = typer.Option(..., "--path", help="Hugging Face model path"),
-    port: int = typer.Option(9000, "--port", help="Port to expose locally"),
-    gpu: str = typer.Option("all", "--gpu", help="Specific GPU index to use"),
-    gpu_memory_utilization: float = typer.Option(0.6, "--gpu-memory-utilization", help="Fraction of GPU memory to use"),
-    max_num_seqs: int = typer.Option(600, "--max-num-seqs", help="Maximum number of sequences to generate in parallel"),
-    max_model_len: int = typer.Option(32768, "--max-model-len", help="Maximum length of the model"),
-    hf_token: Optional[str] = typer.Option(
-        None, "--hf-token", help="Hugging Face access token", envvar="HUGGING_FACE_TOKEN"
-    ),
+    port: Annotated[int, typer.Option("--port", help="Port to expose locally")] = 9000,
+    gpu: Annotated[str, typer.Option("--gpu", help="Specific GPU index to use")] = "all",
+    gpu_memory_utilization: Annotated[
+        float, typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use")
+    ] = 0.6,
+    max_num_seqs: Annotated[
+        int, typer.Option("--max-num-seqs", help="Maximum number of sequences to generate in parallel")
+    ] = 600,
+    max_model_len: Annotated[int, typer.Option("--max-model-len", help="Maximum length of the model")] = 32768,
+    hf_token: Annotated[
+        Optional[str], typer.Option("--hf-token", help="Hugging Face access token", envvar="HUGGING_FACE_TOKEN")
+    ] = None,
 ):
     """Launch a model from Hugging Face."""
     if not hf_token:
@@ -111,17 +111,18 @@ def run_huggingface(
         )
         raise typer.Exit(1)
 
+    stack_version = docker_helper.get_env_var("STACK_VERSION")
     docker_helper.run_container(
-        image="vllm/vllm-openai:latest",
+        image=f"liquidai/liquid-labs-vllm:{stack_version}",
         name=name,
         environment={"HUGGING_FACE_HUB_TOKEN": hf_token},
-        ports={8000: port},
-        device_requests=[{"Driver": "nvidia", "Count": -1, "Capabilities": [["gpu"]]}],
+        device_requests=get_device_requests_from_gpus(gpu),
+        network="liquid_labs_network",
         command=[
             "--host",
             "0.0.0.0",
             "--port",
-            "8000",
+            str(port),
             "--model",
             path,
             "--served-model-name",
@@ -139,8 +140,6 @@ def run_huggingface(
             "--max-seq-len-to-capture",
             str(max_model_len),
         ],
-        health_cmd="curl --fail http://localhost:8000/health || exit 1",
-        health_interval=30,
     )
 
     typer.echo(f"Model '{name}' started successfully")
@@ -187,7 +186,7 @@ def run_checkpoint(
         image=image_name,
         name=model_name,
         ports={8000: port},
-        device_requests=[{"Driver": "nvidia", "Count": -1, "Capabilities": [["gpu"]]}],
+        device_requests=get_device_requests_from_gpus(gpu),
         volumes={str(checkpoint_path): {"bind": "/model", "mode": "ro"}},
         command=[
             "--host",

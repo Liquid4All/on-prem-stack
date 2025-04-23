@@ -272,10 +272,10 @@ curl http://0.0.0.0:9000/v1/chat/completions \
 
 ## Troubleshooting
 
-**Unknown or invalid runtime name: nvidia**
-
-<details>
+<details open>
 <summary>(click to expand)</summary>
+
+**Unknown or invalid runtime name: nvidia**
 
 1. Ensure NVIDIA Container Toolkit is installed:
 

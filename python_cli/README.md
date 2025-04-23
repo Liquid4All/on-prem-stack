@@ -3,9 +3,17 @@
 Command line interface for managing Liquid Labs on-prem stack.
 
 ## Installation
-
 ```bash
 pip install liquidai-cli
+```
+
+A `docker-compose.yaml` file is also shipped together with the package. Any changes to this file may cause some unexpected behaviors.
+
+### Run with `uv`
+`uv` allows to run this tool without installing the package into the system.
+
+```bash
+uv run --directory [PATH_TO_THIS_DIRECTORY] liquidai [command] [args]
 ```
 
 ## Configuration
@@ -53,6 +61,11 @@ liquidai stack purge --force
 ### Model Operations
 
 ```bash
+# Run a model in docker container
+liquidai model run-model-image \
+  --name lfm-3b-e \
+  --image "liquidai/lfm-3b-e:0.0.6"
+
 # Run a HuggingFace model
 liquidai model run-hf \
   --name llama-7b \
@@ -113,51 +126,4 @@ liquidai config import --force
 ```
 
 ## Command Reference
-
-### Stack Commands
-
-- `launch [--upgrade-stack] [--upgrade-model]`: Launch the stack
-  - `--upgrade-stack`: Upgrade stack version
-  - `--upgrade-model`: Upgrade model version
-- `shutdown`: Shutdown the stack
-- `test`: Test API endpoints
-- `purge [--force]`: Remove all components
-  - `--force`: Skip confirmation prompt
-
-### Model Commands
-
-- `run-hf`: Run a HuggingFace model
-  - `--name`: Name for the model container
-  - `--path`: HuggingFace model path
-  - `--port`: Port to expose (default: 9000)
-  - `--gpu`: GPU index to use (default: "all")
-  - `--gpu-memory-utilization`: GPU memory fraction (default: 0.6)
-  - `--max-num-seqs`: Max parallel sequences (default: 600)
-  - `--max-model-len`: Max model length (default: 32768)
-  - `--hf-token`: HuggingFace token (or use HUGGING_FACE_TOKEN env var)
-
-- `run-checkpoint`: Run a local checkpoint
-  - `--path`: Path to checkpoint directory
-  - `--port`: Port to expose (default: 9000)
-  - `--gpu`: GPU index to use (default: "all")
-  - `--gpu-memory-utilization`: GPU memory fraction (default: 0.6)
-  - `--max-num-seqs`: Max parallel sequences (default: 600)
-
-- `list`: List running models
-- `stop [NAME]`: Stop a model (interactive if NAME not provided)
-
-### Database Commands
-
-- `connect`: Connect to database using pgcli
-
-### Infrastructure Commands
-
-- `tunnel create [--token TOKEN]`: Create Cloudflare tunnel
-  - `--token`: Cloudflare tunnel token
-
-### Configuration Commands
-
-- `config import [--env-file PATH] [--config-file PATH] [--force]`: Import .env configuration
-  - `--env-file`: Path to .env file (default: .env)
-  - `--config-file`: Path to YAML config file (default: liquid.yaml)
-  - `--force`: Force overwrite existing config
+Call `liquidai [command] --help` to get the detailed usage reference.

@@ -5,14 +5,16 @@ from typing import List, Dict, Any
 import docker
 from docker.errors import NotFound
 from pathlib import Path
-import logging 
+import logging
 
 logger = logging.getLogger(__name__)
+
 
 class DockerHelper:
     def __init__(self, env_file: Path = Path(".env")):
         self.client = docker.from_env()
         self.env_file = env_file
+        self.env_dict = {}
 
     def run_compose(self, compose_file: Path, action: str = "up") -> None:
         """Run docker-compose command."""
@@ -48,7 +50,7 @@ class DockerHelper:
         except NotFound:
             pass
 
-    def run_container(self, image: str, name: str, **kwargs) -> None:
+    def run_container(self, image: str, name: str, **kwargs) -> docker.models.containers.Container:
         """Run a Docker container."""
         try:
             container = self.client.containers.get(name)
@@ -56,7 +58,7 @@ class DockerHelper:
         except NotFound:
             pass
 
-        self.client.containers.run(image, name=name, detach=True, **kwargs)
+        return self.client.containers.run(image, name=name, detach=True, **kwargs)
 
     def list_containers(self, ancestor: str) -> List[Dict[str, Any]]:
         """List containers by ancestor image."""
@@ -67,9 +69,7 @@ class DockerHelper:
         image_base_name = ancestor.split(":")[0]
         images = self.client.images.list(name=image_base_name)
         for image in images:
-            containers = self.client.containers.list(
-                filters={"ancestor": image.id}
-            )
+            containers = self.client.containers.list(filters={"ancestor": image.id})
             matching_containers.update(containers)
         result = []
         for c in matching_containers:
@@ -92,8 +92,19 @@ class DockerHelper:
         except NotFound:
             pass
 
+    def get_env_var(self, key: str) -> str:
+        """Get an environment variable from the env_file."""
+        if key in self.env_dict:
+            return self.env_dict[key]
+        with open(self.env_file, "r") as f:
+            for line in f:
+                if line.startswith(key):
+                    return line.split("=")[1].strip()
+        return ""
+
     def set_and_export_env_var(self, key: str, value: str) -> None:
         """Set and export an environment variable into env_file."""
+        self.env_dict[key] = value
         with open(self.env_file, "r") as f:
             lines = f.readlines()
         # Check if the key already exists

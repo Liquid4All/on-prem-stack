@@ -84,8 +84,7 @@ MODEL_CHECKPOINT_ABS=$(realpath "$MODEL_CHECKPOINT")
 
 MODEL_METADATA_FILE="$MODEL_CHECKPOINT_ABS/model_metadata.json"
 if [ ! -f "$MODEL_METADATA_FILE" ]; then
-    echo "Error: model_metadata.json does not exist in the model checkpoint directory"
-    exit 1
+    echo "Warning: model_metadata.json does not exist in the model checkpoint directory. If you are trying to run VLM, it will fail."
 fi
 
 MODEL_NAME=$(jq -r '.model_name' "$MODEL_METADATA_FILE")

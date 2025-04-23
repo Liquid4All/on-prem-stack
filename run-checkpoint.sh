@@ -92,6 +92,7 @@ if [ ! -f "$MODEL_METADATA_FILE" ]; then
     echo "Warning: model_metadata.json does not exist in the model checkpoint directory. If you are trying to run VLM, it will fail."
 fi
 
+# TODO: this is a temporary fix for vLLM e5bb8474e8
 if [ -z "$MODEL_NAME" ]; then
     if [ -f "$MODEL_METADATA_FILE" ]; then
         echo "Reading model name from model_metadata.json"

@@ -221,40 +221,6 @@ This means the model does not have a default `chat_template` in the `tokenizer_c
 
 The `run-vllm.sh` script does not support passing in a custom chat template. You can modify the script yourself if needed.
 
-**Unknown or invalid runtime name: nvidia**
-
-1. Ensure NVIDIA Container Toolkit is installed:
-
-```bash
-sudo apt update
-sudo apt install -y nvidia-container-toolkit nvidia-container-runtime
-```
-
-2. Configure Docker to use NVIDIA runtime
-
-```bash
-sudo nano /etc/docker/daemon.json
-```
-
-Ensure the file contains the following:
-
-```json
-{
-  "runtimes": {
-    "nvidia": {
-      "path": "nvidia-container-runtime",
-      "runtimeArgs": []
-    }
-  }
-}
-```
-
-Then, restart Docker:
-
-```bash
-sudo systemctl restart docker
-```
-
 </details>
 
 ## Serve Fine-Tuned Liquid Model Checkpoints
@@ -301,5 +267,63 @@ curl http://0.0.0.0:9000/v1/chat/completions \
 | `--gpu-memory-utilization` | No | `0.6` | GPU memory utilization for the inference server. Decrease this value when running into out-of-memory issue. |
 | `--max-num-seqs` | No | | Maximum number of sequences per iteration. Decrease this value when running into out-of-memory issue. |
 | `--mount-dir` | No | `./local-files` | File path to be mounted in the Docker container as `/local-files`. This is useful for VLM only. |
+
+</details>
+
+## Troubleshooting
+
+**Unknown or invalid runtime name: nvidia**
+
+<details>
+<summary>(click to expand)</summary>
+
+1. Ensure NVIDIA Container Toolkit is installed:
+
+```bash
+sudo apt update
+sudo apt install -y nvidia-container-toolkit nvidia-container-runtime
+```
+
+2. Configure Docker to use NVIDIA runtime
+
+```bash
+sudo nano /etc/docker/daemon.json
+```
+
+Ensure the file contains the following:
+
+```json
+{
+  "runtimes": {
+    "nvidia": {
+      "path": "nvidia-container-runtime",
+      "runtimeArgs": []
+    }
+  }
+}
+```
+
+Then, restart Docker:
+
+```bash
+sudo systemctl restart docker
+```
+
+**ValueError: There is no module or parameter named 'model' in LiquidVlmForConditionalGeneration**
+
+This is a temporary bug when running a LLM checkpoint using vLLM image `e5bb8474e8`. It does not affect VLMs.
+
+The workaround is:
+
+- Delete the `model_metadata.json` file in the model checkpoint directory.
+- When launching the checkpoint, manually add `--modal-name <model-name>` to the command line. For example:
+
+```bash
+./run-checkpoint.sh --model-checkpoint <model-checkpoint-directory> --model-name <model-name>
+```
+
+The passed in model name should have the format of `lfm-<model-size>B-<optional-suffix>` or `vlfm-<model-size>B-<optional-suffix>`
+
+This bug will be fixed in the next vLLM version.
 
 </details>

@@ -12,6 +12,7 @@ usage() {
     echo "  --gpu                     Specific GPU index to use (e.g., '0', '1', '0,1') (default: all GPUs)"
     echo "  --gpu-memory-utilization  Fraction of GPU memory to use (default: 0.60)"
     echo "  --max-num-seqs            Maximum number of sequences to cache (default: 600)"
+    echo "  --max-model-len           Maximum model length (default: 32768)"
     echo "  --mount-dir               Directory to mount to /local-files in the container (default: ./local-files)"
     exit 1
 }
@@ -20,6 +21,7 @@ PORT=9000
 GPU="all"
 GPU_MEMORY_UTILIZATION=0.60
 MAX_NUM_SEQS=600
+MAX_MODEL_LEN=32768
 MODEL_CHECKPOINT=""
 MODEL_NAME=""
 MOUNT_DIR="$(pwd)/local-files"
@@ -53,6 +55,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --max-num-seqs)
             MAX_NUM_SEQS="$2"
+            shift 2
+            ;;
+        --max-model-len)
+            MAX_MODEL_LEN="$2"
             shift 2
             ;;
         --mount-dir)
@@ -115,6 +121,7 @@ echo "Launching $MODEL_NAME from $MODEL_CHECKPOINT_ABS"
 echo "GPU: $GPU"
 echo "GPU Memory Utilization: $GPU_MEMORY_UTILIZATION"
 echo "Max Num Seqs: $MAX_NUM_SEQS"
+echo "Max Model Len: $MAX_MODEL_LEN"
 echo "Mount Directory: $MOUNT_DIR_ABS -> /local-files"
 
 docker run -d \
@@ -136,8 +143,8 @@ docker run -d \
     --enable-chunked-prefill false \
     --gpu-memory-utilization $GPU_MEMORY_UTILIZATION \
     --max-num-seqs $MAX_NUM_SEQS \
-    --max-model-len 32768 \
-    --max-seq-len-to-capture 32768 \
+    --max-model-len $MAX_MODEL_LEN \
+    --max-seq-len-to-capture $MAX_MODEL_LEN \
     --allowed_local_media_path "/local-files"
 
 if [ $? -eq 0 ]; then

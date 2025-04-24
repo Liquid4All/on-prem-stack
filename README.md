@@ -266,6 +266,7 @@ curl http://0.0.0.0:9000/v1/chat/completions \
 | `--gpu` | No | `all` | GPU device to use (e.g. to use the first gpu: `0`, to use the second gpu: `1`) |
 | `--gpu-memory-utilization` | No | `0.6` | GPU memory utilization for the inference server. Decrease this value when running into out-of-memory issue. |
 | `--max-num-seqs` | No | | Maximum number of sequences per iteration. Decrease this value when running into out-of-memory issue. |
+| `--max-model-len` | No | `32768` | Model context length. Decrease this value when running into out-of-memory issue. |
 | `--mount-dir` | No | `./local-files` | File path to be mounted in the Docker container as `/local-files`. This is useful for VLM only. |
 
 </details>

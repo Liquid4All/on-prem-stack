@@ -14,6 +14,7 @@ class DockerHelper:
     def __init__(self, env_file: Path = Path(".env")):
         self.client = docker.from_env()
         self.env_file = env_file
+        env_file.touch()
         self.env_dict = {}
 
     def run_compose(self, compose_file: Path, action: str = "up") -> None:

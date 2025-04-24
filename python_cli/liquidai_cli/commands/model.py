@@ -4,12 +4,14 @@ import typer
 from pathlib import Path
 from typing import Optional, Dict, List, cast
 from liquidai_cli.utils.docker import DockerHelper
-from liquidai_cli.utils.config import load_config
 from liquidai_cli.utils.device import get_device_requests_from_gpus
 from typing_extensions import Annotated
 
 app = typer.Typer(help="Manage ML models")
 docker_helper = DockerHelper()
+
+NANOSECONDS_IN_SECOND = 1_000_000_000
+HEALTHCHECK_INTERVAL = 30 * NANOSECONDS_IN_SECOND
 
 
 @app.command(name="run-model-image")
@@ -19,10 +21,12 @@ def run_model_image(
     port: Annotated[int, typer.Option("--port", help="Port to expose locally")] = 9000,
     gpu: Annotated[str, typer.Option("--gpu", help="Specific GPU index to use")] = "all",
     gpu_memory_utilization: Annotated[
-        float, typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use")
+        float,
+        typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use"),
     ] = 0.6,
     max_num_seqs: Annotated[
-        int, typer.Option("--max-num-seqs", help="Maximum number of sequences to generate in parallel")
+        int,
+        typer.Option("--max-num-seqs", help="Maximum number of sequences to generate in parallel"),
     ] = 750,
     max_model_len: Annotated[int, typer.Option("--max-model-len", help="Maximum length of the model")] = 32768,
 ):
@@ -81,6 +85,11 @@ def run_model_image(
             "--max-seq-len-to-capture",
             str(max_model_len),
         ],
+        healthcheck={
+            "test": f"curl --fail http://localhost:{port}/health || exit 1",
+            "interval": HEALTHCHECK_INTERVAL,
+            "start_period": HEALTHCHECK_INTERVAL,
+        },
     )
     typer.echo(f"Model '{name}' started successfully")
     typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
@@ -93,14 +102,17 @@ def run_huggingface(
     port: Annotated[int, typer.Option("--port", help="Port to expose locally")] = 9000,
     gpu: Annotated[str, typer.Option("--gpu", help="Specific GPU index to use")] = "all",
     gpu_memory_utilization: Annotated[
-        float, typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use")
+        float,
+        typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use"),
     ] = 0.6,
     max_num_seqs: Annotated[
-        int, typer.Option("--max-num-seqs", help="Maximum number of sequences to generate in parallel")
+        int,
+        typer.Option("--max-num-seqs", help="Maximum number of sequences to generate in parallel"),
     ] = 600,
     max_model_len: Annotated[int, typer.Option("--max-model-len", help="Maximum length of the model")] = 32768,
     hf_token: Annotated[
-        Optional[str], typer.Option("--hf-token", help="Hugging Face access token", envvar="HUGGING_FACE_TOKEN")
+        Optional[str],
+        typer.Option("--hf-token", help="Hugging Face access token", envvar="HUGGING_FACE_TOKEN"),
     ] = None,
 ):
     """Launch a model from Hugging Face."""
@@ -140,22 +152,27 @@ def run_huggingface(
             "--max-seq-len-to-capture",
             str(max_model_len),
         ],
+        healthcheck={
+            "test": f"curl --fail http://localhost:{port}/health || exit 1",
+            "interval": HEALTHCHECK_INTERVAL,
+            "start_period": HEALTHCHECK_INTERVAL,
+        },
     )
 
     typer.echo(f"Model '{name}' started successfully")
-    typer.echo(f"The vLLM API will be accessible at http://localhost:{port}")
     typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
 
 
 @app.command(name="run-checkpoint")
 def run_checkpoint(
     path: str = typer.Option(..., "--path", help="Path to model checkpoint directory"),
-    port: int = typer.Option(9000, "--port", help="Port to expose locally"),
-    gpu: str = typer.Option("all", "--gpu", help="Specific GPU index to use"),
-    gpu_memory_utilization: float = typer.Option(
-        0.60, "--gpu-memory-utilization", help="Fraction of GPU memory to use"
-    ),
-    max_num_seqs: int = typer.Option(600, "--max-num-seqs", help="Maximum number of sequences to cache"),
+    port: Annotated[int, typer.Option("--port", help="Port to expose locally")] = 9000,
+    gpu: Annotated[str, typer.Option("--gpu", help="Specific GPU index to use")] = "all",
+    gpu_memory_utilization: Annotated[
+        float,
+        typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use"),
+    ] = 0.6,
+    max_num_seqs: Annotated[int, typer.Option("--max-num-seqs", help="Maximum number of sequences to cache")] = 600,
 ):
     """Launch a model from local checkpoint."""
     import json
@@ -167,7 +184,10 @@ def run_checkpoint(
 
     metadata_file = checkpoint_path / "model_metadata.json"
     if not metadata_file.is_file():
-        typer.echo("Error: model_metadata.json does not exist in the model checkpoint directory", err=True)
+        typer.echo(
+            "Error: model_metadata.json does not exist in the model checkpoint directory",
+            err=True,
+        )
         raise typer.Exit(1)
 
     with open(metadata_file) as f:
@@ -178,21 +198,20 @@ def run_checkpoint(
         typer.echo("Error: model_name is not defined in model_metadata.json", err=True)
         raise typer.Exit(1)
 
-    config = load_config()
-    stack_version = config["stack"]["version"]
+    stack_version = docker_helper.get_env_var("STACK_VERSION")
     image_name = f"liquidai/liquid-labs-vllm:{stack_version}"
 
     docker_helper.run_container(
         image=image_name,
         name=model_name,
-        ports={8000: port},
         device_requests=get_device_requests_from_gpus(gpu),
         volumes={str(checkpoint_path): {"bind": "/model", "mode": "ro"}},
+        network="liquid_labs_network",
         command=[
             "--host",
             "0.0.0.0",
             "--port",
-            "8000",
+            str(port),
             "--model",
             "/model",
             "--served-model-name",
@@ -214,12 +233,14 @@ def run_checkpoint(
             "--max-seq-len-to-capture",
             "32768",
         ],
-        health_cmd="curl --fail http://localhost:8000/health || exit 1",
-        health_interval=30,
+        healthcheck={
+            "test": f"curl --fail http://localhost:{port}/health || exit 1",
+            "interval": HEALTHCHECK_INTERVAL,
+            "start_period": HEALTHCHECK_INTERVAL,
+        },
     )
 
     typer.echo(f"Model '{model_name}' started successfully")
-    typer.echo(f"The vLLM API will be accessible at http://localhost:{port}")
     typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
 
 

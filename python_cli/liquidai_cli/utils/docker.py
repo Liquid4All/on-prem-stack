@@ -19,14 +19,14 @@ class DockerHelper:
 
     def run_compose(self, compose_file: Path, action: str = "up") -> None:
         """Run docker-compose command."""
-        cmd = ["docker", "compose", "--env-file", str(self.env_file)]
+        cmd = ["docker", "compose", "--env-file", str(self.env_file), "-f", str(compose_file)]
 
         if action == "up":
             cmd.extend(["up", "-d", "--wait"])
         elif action == "down":
             cmd.extend(["down"])
 
-        subprocess.run(cmd)
+        subprocess.run(cmd, check=True)
 
     def ensure_volume(self, name: str) -> None:
         """Ensure a Docker volume exists."""

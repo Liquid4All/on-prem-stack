@@ -67,7 +67,10 @@ def import_env(
     # Stack configuration
     config["stack"].update(
         {
-            "version": env_vars.get("STACK_VERSION", config["stack"]["version"]),
+            "vllm_version": env_vars.get("VLLM_VERSION", config["stack"]["vllm_version"]),
+            "python_api_version": env_vars.get("PYTHON_API_VERSION", config["stack"]["python_api_version"]),
+            "web_version": env_vars.get("WEB_VERSION", config["stack"]["web_version"]),
+            "db_migration_version": env_vars.get("DB_MIGRATION_VERSION", config["stack"]["db_migration_version"]),
             "model_image": env_vars.get("MODEL_IMAGE", config["stack"]["model_image"]),
             "jwt_secret": env_vars.get("JWT_SECRET", generate_random_string(64)),
             "api_secret": env_vars.get("API_SECRET", config["stack"]["api_secret"]),

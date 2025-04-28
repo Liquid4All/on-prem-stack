@@ -19,7 +19,6 @@ DEFAULT_CONFIG = {
         "api_secret": "local_api_token",
         "auth_secret": None,  # Generated on first use
         "model_name": None,  # Generated from model_image
-        "no-web-mode": False, # Set to True to disable web UI
     },
     "database": {
         "name": "liquid_labs",

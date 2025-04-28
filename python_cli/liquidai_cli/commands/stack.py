@@ -150,9 +150,8 @@ def test():
             typer.echo(response.json())
 
 def get_docker_compose_file(config: Dict[str, Any]) -> Path:
-    docker_file_name = config["stack"]["no-web-mode"] and "docker-compose-no-web.yaml" or "docker-compose.yaml"
     import liquidai_cli.docker_compose_files as docker_compose_files
-    path = impresources.files(docker_compose_files).joinpath(docker_file_name)
+    path = impresources.files(docker_compose_files).joinpath("docker-compose.yaml")
     if not path.exists():
         raise FileNotFoundError(f"Docker compose file not found: {path}")
     return path

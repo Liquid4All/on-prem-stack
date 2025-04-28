@@ -52,9 +52,9 @@ def run_model_image(
     model_volume_loader_container.remove()
 
     typer.echo(f"Launching model container: {name}")
-    stack_version = docker_helper.get_env_var("STACK_VERSION")
+    vllm_version = docker_helper.get_env_var("VLLM_VERSION")
     docker_helper.run_container(
-        image=f"liquidai/liquid-labs-vllm:{stack_version}",
+        image=f"liquidai/liquid-labs-vllm:{vllm_version}",
         name=name,
         device_requests=get_device_requests_from_gpus(gpu),
         volumes={model_volume_name: {"bind": "/model", "mode": "ro"}},
@@ -123,9 +123,9 @@ def run_huggingface(
         )
         raise typer.Exit(1)
 
-    stack_version = docker_helper.get_env_var("STACK_VERSION")
+    vllm_version = docker_helper.get_env_var("VLLM_VERSION")
     docker_helper.run_container(
-        image=f"liquidai/liquid-labs-vllm:{stack_version}",
+        image=f"liquidai/liquid-labs-vllm:{vllm_version}",
         name=name,
         environment={"HUGGING_FACE_HUB_TOKEN": hf_token},
         device_requests=get_device_requests_from_gpus(gpu),
@@ -198,8 +198,8 @@ def run_checkpoint(
         typer.echo("Error: model_name is not defined in model_metadata.json", err=True)
         raise typer.Exit(1)
 
-    stack_version = docker_helper.get_env_var("STACK_VERSION")
-    image_name = f"liquidai/liquid-labs-vllm:{stack_version}"
+    vllm_version = docker_helper.get_env_var("VLLM_VERSION")
+    image_name = f"liquidai/liquid-labs-vllm:{vllm_version}"
 
     docker_helper.run_container(
         image=image_name,

@@ -144,7 +144,7 @@ services:
       - "3000:3000"
 
   liquid-labs-db-migration:
-    image: liquidai/liquid-labs-db-migration
+    image: liquidai/liquid-labs-db-migration:${DB_MIGRATION_VERSION}
     container_name: liquid-labs-db-migration
     depends_on:
       liquid-labs-postgres:

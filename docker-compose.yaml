@@ -122,6 +122,8 @@ services:
     depends_on:
       liquid-labs-postgres:
         condition: service_healthy
+      liquid-labs-db-migration:
+        condition: service_completed_successfully
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
       interval: 60s

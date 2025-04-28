@@ -59,8 +59,8 @@ services:
     depends_on:
       liquid-labs-vllm:
         condition: service_started
-      liquid-labs-web:
-        condition: service_healthy
+      liquid-labs-db-migration:
+        condition: service_completed_successfully
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
       interval: 60s
@@ -122,6 +122,8 @@ services:
     depends_on:
       liquid-labs-postgres:
         condition: service_healthy
+      liquid-labs-db-migration:
+        condition: service_completed_successfully
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
       interval: 60s
@@ -140,6 +142,22 @@ services:
       - liquid_labs_network
     ports:
       - "3000:3000"
+
+  liquid-labs-db-migration:
+    image: liquidai/liquid-labs-db-migration:${DB_MIGRATION_VERSION}
+    container_name: liquid-labs-db-migration
+    depends_on:
+      liquid-labs-postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA}
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - liquid_labs_network
 
 networks:
   liquid_labs_network:

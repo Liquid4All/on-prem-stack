@@ -6,6 +6,7 @@ from liquidai_cli.utils.docker import DockerHelper
 from liquidai_cli.utils.config import load_config, extract_model_name
 from liquidai_cli.utils.prompt import confirm_action
 from liquidai_cli.commands.model import run_model_image
+from importlib import resources as impresources
 
 app = typer.Typer(help="Manage the on-prem stack")
 docker_helper = DockerHelper(Path(".env"))
@@ -57,7 +58,7 @@ def launch(
     docker_helper.ensure_volume("postgres_data")
 
     # Launch stack
-    docker_helper.run_compose(Path("docker-compose.yaml"))
+    docker_helper.run_compose(get_docker_compose_file())
     # Run default model image
     run_model_image(model_name, config["stack"]["model_image"])
 
@@ -74,7 +75,7 @@ def shutdown():
         docker_helper.stop_container(container_name)
         typer.echo(f"Stopped and removed model container: {container_name}")
 
-    docker_helper.run_compose(Path("docker-compose.yaml"), action="down")
+    docker_helper.run_compose(get_docker_compose_file(), action="down")
     typer.echo("Stack has been shut down.")
 
 
@@ -96,7 +97,7 @@ def purge(
         return
 
     # Shutdown containers
-    docker_helper.run_compose(Path("docker-compose.yaml"), action="down")
+    docker_helper.run_compose(get_docker_compose_file(), action="down")
 
     # Remove volume and network
     docker_helper.remove_volume("postgres_data")
@@ -147,3 +148,12 @@ def test():
             }
             response = requests.post("http://0.0.0.0:8000/v1/chat/completions", headers=headers, json=data)
             typer.echo(response.json())
+
+
+def get_docker_compose_file() -> Path:
+    import liquidai_cli.docker_compose_files as docker_compose_files
+
+    path = impresources.files(docker_compose_files).joinpath("docker-compose.yaml")
+    if not path.exists():
+        raise FileNotFoundError(f"Docker compose file not found: {path}")
+    return path

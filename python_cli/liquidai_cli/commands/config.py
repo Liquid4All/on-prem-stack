@@ -2,11 +2,12 @@
 
 import typer
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Annotated
 from liquidai_cli.utils.config import (
     save_config,
     DEFAULT_CONFIG,
     generate_random_string,
+    load_config,
 )
 
 app = typer.Typer(help="Manage configuration")
@@ -91,3 +92,19 @@ def import_env(
     save_config(config, config_file)
     typer.echo(f"Successfully imported configuration from {env_file} to {config_file}")
     typer.echo("\nNote: MODEL_NAME and DATABASE_URL are auto-generated and were not imported.")
+
+@app.command()
+def no_web_mode(off: Annotated[bool, typer.Option(
+    "--off",
+    help="Turn off no-web mode, which enables the web UI.",
+    is_eager=True,
+    show_default=True,
+)] = False):
+    """Enable or disable web mode."""
+    config = load_config()
+    config["stack"]["no-web-mode"] = not off
+    save_config(config, Path("liquid.yaml"))
+    if off:
+        typer.echo("No web mode disabled.")
+    else:
+        typer.echo("No web mode enabled.")

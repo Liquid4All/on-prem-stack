@@ -101,7 +101,7 @@ def run_model_image(
         if docker_helper.wait_for_container_health_check(container, 15):
             typer.echo(f"Model '{name}' has started serving requests.")
         else:
-            typer.echo(f"Error: Model '{name}' failed to start serving requests", err = True)
+            typer.echo(f"Error: Model '{name}' failed to start serving requests", err=True)
             typer.echo(f"Use `docker logs {container.short_id}` to obtain container loggings.")
 
 

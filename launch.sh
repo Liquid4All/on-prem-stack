@@ -179,7 +179,8 @@ set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 
 set_and_export_env_var "VLLM_VERSION" "e5bb8474e8" "$UPGRADE_VLLM"
 set_and_export_env_var "PYTHON_API_VERSION" "d2501caa69" true
-set_and_export_env_var "WEB_VERSION" "32faf06a58" true
+set_and_export_env_var "WEB_VERSION" "1d7d6c7cbb" true
+set_and_export_env_var "DB_MIGRATION_VERSION" "2b70027d9a" true
 
 set_and_export_env_var "POSTGRES_DB" "liquid_labs"
 set_and_export_env_var "POSTGRES_USER" "local_user"

@@ -29,6 +29,7 @@ def run_model_image(
         typer.Option("--max-num-seqs", help="Maximum number of sequences to generate in parallel"),
     ] = 750,
     max_model_len: Annotated[int, typer.Option("--max-model-len", help="Maximum length of the model")] = 32768,
+    wait_for_health: Annotated[bool, typer.Option("--wait", help="Wait for health check to pass")] = True,
 ):
     """
     Launch a model stored in a Docker image. Default Liquid Foundation Models (LFM) are delivered in this approach.
@@ -53,7 +54,7 @@ def run_model_image(
 
     typer.echo(f"Launching model container: {name}")
     vllm_version = docker_helper.get_env_var("VLLM_VERSION")
-    docker_helper.run_container(
+    container = docker_helper.run_container(
         image=f"liquidai/liquid-labs-vllm:{vllm_version}",
         name=name,
         device_requests=get_device_requests_from_gpus(gpu),
@@ -91,8 +92,20 @@ def run_model_image(
             "start_period": HEALTHCHECK_INTERVAL,
         },
     )
-    typer.echo(f"Model '{name}' started successfully")
-    typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
+    if not wait_for_health:
+        typer.echo(f"Model '{name}' started successfully")
+        typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
+    else:
+        typer.echo(f"Model '{name}' started successfully")
+        typer.echo(f"Waiting for model '{name}' to be healthy. This may take a 1-2 minutes...")
+        if docker_helper.wait_for_container_health_check(container, 15):
+            typer.echo(f"Model '{name}' has started serving requests.")
+        else:
+            typer.echo(
+                f"Error: Model '{name}' failed to start serving requests. \
+                  Use `docker logs {container.short_id}` to obtain loggings.",
+                err=True,
+            )
 
 
 @app.command(name="run-hf")

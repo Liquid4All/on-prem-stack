@@ -6,6 +6,8 @@ from typing import Optional, Dict, List, cast
 from liquidai_cli.utils.docker import DockerHelper
 from liquidai_cli.utils.device import get_device_requests_from_gpus
 from typing_extensions import Annotated
+from docker.models.containers import Container
+
 
 app = typer.Typer(help="Manage ML models")
 docker_helper = DockerHelper()
@@ -96,13 +98,7 @@ def run_model_image(
         typer.echo(f"Model '{name}' started successfully")
         typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
     else:
-        typer.echo(f"Model '{name}' started successfully")
-        typer.echo(f"Waiting for model '{name}' to be healthy. This may take a 1-2 minutes...")
-        if docker_helper.wait_for_container_health_check(container, 15):
-            typer.echo(f"Model '{name}' has started serving requests.")
-        else:
-            typer.echo(f"Error: Model '{name}' failed to start serving requests", err=True)
-            typer.echo(f"Use `docker logs {container.short_id}` to obtain container loggings.")
+        wait_for_model_health_or_print_logs_command(name, container)
 
 
 @app.command(name="run-hf")
@@ -124,6 +120,7 @@ def run_huggingface(
         Optional[str],
         typer.Option("--hf-token", help="Hugging Face access token", envvar="HUGGING_FACE_TOKEN"),
     ] = None,
+    wait_for_health: Annotated[bool, typer.Option("--wait", help="Wait for health check to pass")] = True,
 ):
     """Launch a model from Hugging Face."""
     if not hf_token:
@@ -134,7 +131,7 @@ def run_huggingface(
         raise typer.Exit(1)
 
     vllm_version = docker_helper.get_env_var("VLLM_VERSION")
-    docker_helper.run_container(
+    container = docker_helper.run_container(
         image=f"liquidai/liquid-labs-vllm:{vllm_version}",
         name=name,
         environment={"HUGGING_FACE_HUB_TOKEN": hf_token},
@@ -168,9 +165,11 @@ def run_huggingface(
             "start_period": HEALTHCHECK_INTERVAL,
         },
     )
-
-    typer.echo(f"Model '{name}' started successfully")
-    typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
+    if not wait_for_health:
+        typer.echo(f"Model '{name}' started successfully")
+        typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
+    else:
+        wait_for_model_health_or_print_logs_command(name, container)
 
 
 @app.command(name="run-checkpoint")
@@ -183,6 +182,7 @@ def run_checkpoint(
         typer.Option("--gpu-memory-utilization", help="Fraction of GPU memory to use"),
     ] = 0.6,
     max_num_seqs: Annotated[int, typer.Option("--max-num-seqs", help="Maximum number of sequences to cache")] = 600,
+    wait_for_health: Annotated[bool, typer.Option("--wait", help="Wait for health check to pass")] = True,
 ):
     """Launch a model from local checkpoint."""
     import json
@@ -211,7 +211,7 @@ def run_checkpoint(
     vllm_version = docker_helper.get_env_var("VLLM_VERSION")
     image_name = f"liquidai/liquid-labs-vllm:{vllm_version}"
 
-    docker_helper.run_container(
+    container = docker_helper.run_container(
         image=image_name,
         name=model_name,
         device_requests=get_device_requests_from_gpus(gpu),
@@ -250,8 +250,11 @@ def run_checkpoint(
         },
     )
 
-    typer.echo(f"Model '{model_name}' started successfully")
-    typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
+    if not wait_for_health:
+        typer.echo(f"Model '{model_name}' started successfully")
+        typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
+    else:
+        wait_for_model_health_or_print_logs_command(model_name, container)
 
 
 @app.command()
@@ -316,3 +319,13 @@ def stop(
             typer.echo("Invalid selection", err=True)
     except typer.Abort:
         typer.echo("\nOperation cancelled.")
+
+
+def wait_for_model_health_or_print_logs_command(name: str, container: Container):
+    typer.echo(f"Model '{name}' started successfully")
+    typer.echo(f"Waiting for model '{name}' to be healthy. This may take a 1-2 minutes...")
+    if docker_helper.wait_for_container_health_check(container, 15):
+        typer.echo(f"Model '{name}' has started serving requests.")
+    else:
+        typer.echo(f"Error: Model '{name}' failed to start serving requests", err=True)
+        typer.echo(f"Use `docker logs {container.short_id}` to obtain container loggings.")

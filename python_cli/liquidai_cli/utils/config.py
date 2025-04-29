@@ -14,6 +14,10 @@ yaml = YAML()
 DEFAULT_CONFIG = {
     "stack": {
         "version": "c3d7dbacd1",
+        "vllm_version": "e5bb8474e8",
+        "python_api_version": "d2501caa69",
+        "web_version": "1d7d6c7cbb",
+        "db_migration_version": "2b70027d9a",
         "model_image": "liquidai/lfm-7b-e:0.0.1",
         "jwt_secret": None,  # Generated on first use
         "api_secret": "local_api_token",

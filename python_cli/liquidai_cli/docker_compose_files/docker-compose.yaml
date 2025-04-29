@@ -1,7 +1,7 @@
 # Docker Compose file for on-prem-stack Python CLI.
 services:
   liquid-labs-python-api:
-    image: liquidai/liquid-labs-python-api:${STACK_VERSION}
+    image: liquidai/liquid-labs-python-api:${PYTHON_API_VERSION}
     container_name: liquid-labs-python-api
     depends_on:
       liquid-labs-postgres:
@@ -20,7 +20,7 @@ services:
       - ENV=internal
       - IS_DOCKER=true
       - CONTAINER_PORT=9000
-      - VLLM_IMAGE_NAME=liquidai/liquid-labs-vllm:${STACK_VERSION}
+      - VLLM_IMAGE_NAME=liquidai/liquid-labs-vllm:${VLLM_VERSION}
       - JWT_SECRET=${JWT_SECRET}
       - API_SECRET=${API_SECRET}
       - NVIDIA_VISIBLE_DEVICES=all
@@ -64,7 +64,7 @@ services:
       retries: 5
 
   liquid-labs-web:
-    image: liquidai/liquid-labs-web:${STACK_VERSION}
+    image: liquidai/liquid-labs-web:${WEB_VERSION}
     container_name: liquid-labs-web
     depends_on:
       liquid-labs-postgres:
@@ -90,7 +90,7 @@ services:
     ports:
       - "3000:3000"
   liquid-labs-db-migration:
-    image: liquidai/liquid-labs-db-migration
+    image: liquidai/liquid-labs-db-migration:${DB_MIGRATION_VERSION}
     container_name: liquid-labs-db-migration
     depends_on:
       liquid-labs-postgres:

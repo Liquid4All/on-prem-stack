@@ -18,7 +18,7 @@ HEALTHCHECK_INTERVAL = 30 * NANOSECONDS_IN_SECOND
 def run_model_image(
     name: str = typer.Option(..., "--name", help="Name for the model"),
     model_image: str = typer.Option(..., "--image", help="Model image name"),
-    port: Annotated[int, typer.Option("--port", help="Port to expose locally")] = 9000,
+    port: Annotated[Optional[int], typer.Option("--port", help="Port to expose locally")] = None,
     gpu: Annotated[str, typer.Option("--gpu", help="Specific GPU index to use")] = "all",
     gpu_memory_utilization: Annotated[
         float,
@@ -53,19 +53,22 @@ def run_model_image(
 
     typer.echo(f"Launching model container: {name}")
     vllm_version = docker_helper.get_env_var("VLLM_VERSION")
+    ports_mapping = {"9000/tcp": port} if port else None
+
     docker_helper.run_container(
         image=f"liquidai/liquid-labs-vllm:{vllm_version}",
         name=name,
         device_requests=get_device_requests_from_gpus(gpu),
         volumes={model_volume_name: {"bind": "/model", "mode": "ro"}},
         network="liquid_labs_network",
+        ports=ports_mapping,
         command=[
             "--model",
             "/model",
             "--served-model-name",
             name,
             "--port",
-            str(port),
+            str(9000),
             "--max-logprobs",
             "0",
             "--dtype",
@@ -86,20 +89,22 @@ def run_model_image(
             str(max_model_len),
         ],
         healthcheck={
-            "test": f"curl --fail http://localhost:{port}/health || exit 1",
+            "test": "curl --fail http://localhost:9000/health || exit 1",
             "interval": HEALTHCHECK_INTERVAL,
             "start_period": HEALTHCHECK_INTERVAL,
         },
     )
     typer.echo(f"Model '{name}' started successfully")
     typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
+    if port:
+        typer.echo(f"Model is accessible at http://localhost:{port}/v1/")
 
 
 @app.command(name="run-hf")
 def run_huggingface(
     name: str = typer.Option(..., "--name", help="Name for the model container"),
     path: str = typer.Option(..., "--path", help="Hugging Face model path"),
-    port: Annotated[int, typer.Option("--port", help="Port to expose locally")] = 9000,
+    port: Annotated[Optional[int], typer.Option("--port", help="Port to expose locally")] = None,
     gpu: Annotated[str, typer.Option("--gpu", help="Specific GPU index to use")] = "all",
     gpu_memory_utilization: Annotated[
         float,
@@ -124,17 +129,19 @@ def run_huggingface(
         raise typer.Exit(1)
 
     vllm_version = docker_helper.get_env_var("VLLM_VERSION")
+    ports_mapping = {"9000/tcp": port} if port else None
     docker_helper.run_container(
         image=f"liquidai/liquid-labs-vllm:{vllm_version}",
         name=name,
         environment={"HUGGING_FACE_HUB_TOKEN": hf_token},
         device_requests=get_device_requests_from_gpus(gpu),
         network="liquid_labs_network",
+        ports=ports_mapping,
         command=[
             "--host",
             "0.0.0.0",
             "--port",
-            str(port),
+            "9000",
             "--model",
             path,
             "--served-model-name",
@@ -153,7 +160,7 @@ def run_huggingface(
             str(max_model_len),
         ],
         healthcheck={
-            "test": f"curl --fail http://localhost:{port}/health || exit 1",
+            "test": "curl --fail http://localhost:9000/health || exit 1",
             "interval": HEALTHCHECK_INTERVAL,
             "start_period": HEALTHCHECK_INTERVAL,
         },
@@ -161,12 +168,14 @@ def run_huggingface(
 
     typer.echo(f"Model '{name}' started successfully")
     typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
+    if port:
+        typer.echo(f"Model is accessible at http://localhost:{port}/v1/")
 
 
 @app.command(name="run-checkpoint")
 def run_checkpoint(
     path: str = typer.Option(..., "--path", help="Path to model checkpoint directory"),
-    port: Annotated[int, typer.Option("--port", help="Port to expose locally")] = 9000,
+    port: Annotated[Optional[int], typer.Option("--port", help="Port to expose locally")] = None,
     gpu: Annotated[str, typer.Option("--gpu", help="Specific GPU index to use")] = "all",
     gpu_memory_utilization: Annotated[
         float,
@@ -200,6 +209,7 @@ def run_checkpoint(
 
     vllm_version = docker_helper.get_env_var("VLLM_VERSION")
     image_name = f"liquidai/liquid-labs-vllm:{vllm_version}"
+    ports_mapping = {"9000/tcp": port} if port else None
 
     docker_helper.run_container(
         image=image_name,
@@ -207,11 +217,12 @@ def run_checkpoint(
         device_requests=get_device_requests_from_gpus(gpu),
         volumes={str(checkpoint_path): {"bind": "/model", "mode": "ro"}},
         network="liquid_labs_network",
+        ports=ports_mapping,
         command=[
             "--host",
             "0.0.0.0",
             "--port",
-            str(port),
+            "9000",
             "--model",
             "/model",
             "--served-model-name",
@@ -234,7 +245,7 @@ def run_checkpoint(
             "32768",
         ],
         healthcheck={
-            "test": f"curl --fail http://localhost:{port}/health || exit 1",
+            "test": "curl --fail http://localhost:9000/health || exit 1",
             "interval": HEALTHCHECK_INTERVAL,
             "start_period": HEALTHCHECK_INTERVAL,
         },
@@ -242,6 +253,8 @@ def run_checkpoint(
 
     typer.echo(f"Model '{model_name}' started successfully")
     typer.echo("Please wait 1-2 minutes for the model to load before making API calls")
+    if port:
+        typer.echo(f"Model is accessible at http://localhost:{port}/v1/")
 
 
 @app.command()
@@ -260,7 +273,7 @@ def list():
         ports = container.get("ports", {})
         port = "unknown"
         if isinstance(ports, dict):
-            port_mappings = cast(List[Dict[str, str]], ports.get("8000/tcp", []))
+            port_mappings = cast(List[Dict[str, str]], ports.get("9000/tcp", []))
             if port_mappings:
                 mapping = port_mappings[0]
                 if isinstance(mapping, dict):
@@ -289,7 +302,7 @@ def stop(
         ports = container.get("ports", {})
         port = "unknown"
         if isinstance(ports, dict):
-            port_mappings = cast(List[Dict[str, str]], ports.get("8000/tcp", []))
+            port_mappings = cast(List[Dict[str, str]], ports.get("9000/tcp", []))
             if port_mappings:
                 mapping = port_mappings[0]
                 if isinstance(mapping, dict):

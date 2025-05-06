@@ -1,11 +1,13 @@
 """Docker utilities for the Liquid Labs CLI."""
 
 import subprocess
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import docker
 from docker.errors import NotFound
 from pathlib import Path
 import logging
+from docker.models.containers import Container
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +53,7 @@ class DockerHelper:
         except NotFound:
             pass
 
-    def run_container(self, image: str, name: str, **kwargs) -> docker.models.containers.Container:
+    def run_container(self, image: str, name: str, **kwargs) -> Container:
         """Run a Docker container."""
         try:
             container = self.client.containers.get(name)
@@ -125,3 +127,31 @@ class DockerHelper:
             self.env_file.unlink()
         except FileNotFoundError:
             pass
+
+    def wait_for_container_health_check(
+        self, container: Container, check_period: int, timeout: Optional[int] = None
+    ) -> bool:
+        """
+        Wait for a container to be healthy. Returns True if healthy, False
+        if timeout or the container exit with a non-zero code.
+
+        Args:
+        * container: the container to check
+        * check_period: the period to wait between checks (in seconds)
+        * timeout: the maximum time to wait for the container to be healthy (in seconds)
+        """
+        counter = 0
+        while True:
+            inspect_results = self.client.api.inspect_container(container.id)
+            health_status = inspect_results.get("State", {}).get("Health", {}).get("Status")
+            if health_status == "healthy":
+                return True
+            elif health_status == "unhealthy":
+                return False
+            else:
+                print(f"Container {container.name} is not healthy yet. Status: {health_status}")
+            if timeout and counter >= timeout:
+                print(f"Timeout waiting for container {container.name} to be healthy.")
+                return False
+            time.sleep(check_period)
+            counter += check_period

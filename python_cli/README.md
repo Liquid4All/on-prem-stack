@@ -66,7 +66,7 @@ liquidai model run-model-image \
   --name lfm-3b-e \
   --image "liquidai/lfm-3b-e:0.0.6"
 
-# Run a HuggingFace model
+# Run a HuggingFace model and expose on port 9000
 liquidai model run-hf \
   --name llama-7b \
   --path meta-llama/Llama-2-7b-chat-hf \
@@ -75,10 +75,10 @@ liquidai model run-hf \
   --max-num-seqs 600 \
   --max-model-len 32768
 
-# Run a local checkpoint
+# Run a local checkpoint and expose on port 9001 to avoid conflicts
 liquidai model run-checkpoint \
   --path /path/to/checkpoint \
-  --port 9000 \
+  --port 9001 \
   --gpu-memory-utilization 0.6 \
   --max-num-seqs 600
 

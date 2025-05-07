@@ -177,7 +177,7 @@ set_and_export_env_var "JWT_SECRET" "$(generate_random_string 64)"
 set_and_export_env_var "API_SECRET" "local_api_token"
 set_and_export_env_var "AUTH_SECRET" "$(generate_random_string 64)"
 
-set_and_export_env_var "VLLM_VERSION" "e5bb8474e8" "$UPGRADE_VLLM"
+set_and_export_env_var "VLLM_VERSION" "bdf3162975" "$UPGRADE_VLLM"
 set_and_export_env_var "PYTHON_API_VERSION" "d2501caa69" true
 set_and_export_env_var "WEB_VERSION" "1d7d6c7cbb" true
 set_and_export_env_var "DB_MIGRATION_VERSION" "2b70027d9a" true

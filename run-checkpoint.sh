@@ -128,6 +128,7 @@ docker run -d \
     --name "$MODEL_NAME" \
     --gpus "device=$GPU" \
     -p $PORT:8000 \
+    -e VLLM_USE_V1=0 \
     --health-cmd="curl --fail http://localhost:8000/health || exit 1" \
     --health-interval=30s \
     -v "$MODEL_CHECKPOINT_ABS:/model" \

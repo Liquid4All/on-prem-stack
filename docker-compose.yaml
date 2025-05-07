@@ -8,6 +8,8 @@ services:
   liquid-labs-vllm:
     image: liquidai/liquid-labs-vllm:${VLLM_VERSION}
     container_name: ${MODEL_NAME}
+    environment:
+      VLLM_USE_V1: 0
     command:
       - --model
       - /model

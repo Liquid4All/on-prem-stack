@@ -1,4 +1,6 @@
 models:
+  lfm-1b-e:
+    image: "liquidai/lfm-1b-e:0.0.2"
   lfm-3b-e:
     image: "liquidai/lfm-3b-e:0.0.6"
   lfm-7b-e:

@@ -156,7 +156,7 @@ def test():
 def get_docker_compose_file() -> Path:
     import liquidai_cli.docker_compose_files as docker_compose_files
 
-    path = impresources.files(docker_compose_files).joinpath("docker-compose.yaml")
-    if not path.exists():
-        raise FileNotFoundError(f"Docker compose file not found: {path}")
-    return path
+    with impresources.as_file(impresources.files(docker_compose_files).joinpath("docker-compose.yaml")) as path:
+        if not path.exists():
+            raise FileNotFoundError(f"Docker compose file not found: {path}")
+        return path

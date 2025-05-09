@@ -15,7 +15,7 @@ authors = [
 dependencies = [
     "typer>=0.9.0",
     "docker>=6.1.0",
-    "ruamel.yaml>=0.17.21"
+    "ruamel.yaml>=0.17.21",
 ]
 
 [project.scripts]

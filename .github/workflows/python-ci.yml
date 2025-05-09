@@ -30,7 +30,7 @@ jobs:
         cd python_cli
         python -m pip install --upgrade pip
         pip install .[test]
-        pip install black flake8
+        pip install black flake8 ty
         
     - name: Run black
       run: |
@@ -41,6 +41,11 @@ jobs:
       run: |
         cd python_cli
         flake8 .
+    
+    - name: Run ty type checker
+      run: |
+        cd python_cli
+        ty check liquidai_cli/
         
     - name: Run tests
       run: |

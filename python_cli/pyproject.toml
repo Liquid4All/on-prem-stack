@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "liquidai-cli"
-version = "0.1.0"
+version = "0.0.1b0"
 description = "CLI tool for Liquid Labs on-prem stack"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.scripts]
-liquidai = "liquidai_cli.cli:main"
+liquid-cli = "liquidai_cli.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["liquidai_cli"]

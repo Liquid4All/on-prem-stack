@@ -1,5 +1,8 @@
 # Liquid Labs On-Prem Deployment
 
+> [!WARNING]
+> The launch script from the `main` branch can run `LFM-1B` model now. This branch has been deprecated.
+
 ## Files
 
 | File | Description |

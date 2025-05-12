@@ -1,3 +1,6 @@
 .env*
 *.zip
 uv.lock
+local-files/*
+!local-files/.keep
+config.yaml

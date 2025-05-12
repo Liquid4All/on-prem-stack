@@ -6,13 +6,17 @@ services:
       - liquid_labs_network
 
   liquid-labs-vllm:
-    image: liquidai/liquid-labs-vllm:${STACK_VERSION}
+    image: liquidai/liquid-labs-vllm:${VLLM_VERSION}
     container_name: ${MODEL_NAME}
+    environment:
+      VLLM_USE_V1: 0
     command:
       - --model
       - /model
       - --served-model-name
       - ${MODEL_NAME}
+      - --allowed_local_media_path
+      - "/local-files"
       - --port
       - "9000"
       - --max-logprobs
@@ -46,17 +50,19 @@ services:
               capabilities: [ gpu ]
     volumes_from:
       - liquid-labs-model-volume
+    volumes:
+      - ${LOCAL_FILES_DIR:-/tmp}:/local-files
     networks:
       - liquid_labs_network
 
   liquid-labs-python-api:
-    image: liquidai/liquid-labs-python-api:${STACK_VERSION}
+    image: liquidai/liquid-labs-python-api:${PYTHON_API_VERSION}
     container_name: liquid-labs-python-api
     depends_on:
       liquid-labs-vllm:
         condition: service_started
-      liquid-labs-web:
-        condition: service_healthy
+      liquid-labs-db-migration:
+        condition: service_completed_successfully
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
       interval: 60s
@@ -69,7 +75,7 @@ services:
       - ENV=internal
       - IS_DOCKER=true
       - CONTAINER_PORT=9000
-      - VLLM_IMAGE_NAME=liquidai/liquid-labs-vllm:${STACK_VERSION}
+      - VLLM_IMAGE_NAME=liquidai/liquid-labs-vllm:${VLLM_VERSION}
       - JWT_SECRET=${JWT_SECRET}
       - API_SECRET=${API_SECRET}
       - NVIDIA_VISIBLE_DEVICES=all
@@ -113,11 +119,13 @@ services:
       retries: 5
 
   liquid-labs-web:
-    image: liquidai/liquid-labs-web:${STACK_VERSION}
+    image: liquidai/liquid-labs-web:${WEB_VERSION}
     container_name: liquid-labs-web
     depends_on:
       liquid-labs-postgres:
         condition: service_healthy
+      liquid-labs-db-migration:
+        condition: service_completed_successfully
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
       interval: 60s
@@ -136,6 +144,22 @@ services:
       - liquid_labs_network
     ports:
       - "3000:3000"
+
+  liquid-labs-db-migration:
+    image: liquidai/liquid-labs-db-migration:${DB_MIGRATION_VERSION}
+    container_name: liquid-labs-db-migration
+    depends_on:
+      liquid-labs-postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA}
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - liquid_labs_network
 
 networks:
   liquid_labs_network:

@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "liquid-on-prem"
-version = "0.1.0"
+name = "liquidai-cli"
+version = "0.0.1b0"
 description = "CLI tool for Liquid Labs on-prem stack"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -1,0 +1,115 @@
+# Docker Compose file for on-prem-stack Python CLI.
+services:
+  liquid-labs-python-api:
+    image: liquidai/liquid-labs-python-api:${PYTHON_API_VERSION}
+    container_name: liquid-labs-python-api
+    depends_on:
+      liquid-labs-postgres:
+        condition: service_healthy
+      liquid-labs-db-migration:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+      start_interval: 5s
+    environment:
+      # When ENV=production, http requests will be redirected to https
+      - ENV=internal
+      - IS_DOCKER=true
+      - CONTAINER_PORT=9000
+      - VLLM_IMAGE_NAME=liquidai/liquid-labs-vllm:${VLLM_VERSION}
+      - JWT_SECRET=${JWT_SECRET}
+      - API_SECRET=${API_SECRET}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - POSTGRES_SCHEMA=labs
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "8000:8000"
+    networks:
+      - liquid_labs_network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # This is equivalent to "runtime: nvidia", but does not require
+    # the nvidia-container-runtime to be added in docker config.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+  liquid-labs-postgres:
+    image: postgres:15
+    container_name: liquid-labs-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - liquid_labs_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  liquid-labs-web:
+    image: liquidai/liquid-labs-web:${WEB_VERSION}
+    container_name: liquid-labs-web
+    depends_on:
+      liquid-labs-postgres:
+        condition: service_healthy
+      liquid-labs-db-migration:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+      start_interval: 5s
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://liquid-labs-python-api:8000
+      - API_SECRET=${API_SECRET}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - NEXT_PUBLIC_DEPLOYMENT_MODE=on_prem
+      - DATABASE_URL=${DATABASE_URL}
+    networks:
+      - liquid_labs_network
+    ports:
+      - "3000:3000"
+  liquid-labs-db-migration:
+    image: liquidai/liquid-labs-db-migration:${DB_MIGRATION_VERSION}
+    container_name: liquid-labs-db-migration
+    depends_on:
+      liquid-labs-postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA}
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - liquid_labs_network
+
+networks:
+  liquid_labs_network:
+    name: liquid_labs_network
+    driver: bridge
+
+volumes:
+  postgres_data:
+    external: true

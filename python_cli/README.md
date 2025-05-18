@@ -9,13 +9,6 @@ pip install liquidai-cli
 
 A `docker-compose.yaml` file is also shipped together with the package. Any changes to this file may cause some unexpected behaviors.
 
-### Run with `uv`
-`uv` allows to run this tool without installing the package into the system.
-
-```bash
-uv run --directory [PATH_TO_THIS_DIRECTORY] liquidai [command] [args]
-```
-
 ## Configuration
 
 The CLI uses a YAML configuration file (`liquid.yaml`) in your working directory. A default configuration will be created on first use, but you can customize it:
@@ -41,7 +34,6 @@ database:
 To set up a local development environment for the Liquid Labs CLI:
 
 ```bash
-# Clone the repository (if you haven't already)
 git clone https://github.com/Liquid4All/on-prem-stack.git
 cd on-prem-stack/python_cli
 
@@ -53,18 +45,19 @@ pip install -e ".[test,dev]"
 
 There are several ways to run the CLI locally:
 
-1. Using Python module (recommended for development):
+- Using Python module (recommended for development):
 ```bash
 python -m liquidai_cli.cli [command] [args]
 ```
 
-2. Using `uv` without installing the package:
+- Using `uv` without installing the package:
 ```bash
 uv run --directory . -m liquidai_cli.cli [command] [args]
 ```
 
-3. After installing the package with pip:
+- Install the package in development mode with test dependencies
 ```bash
+pip install -e ".[test,dev]"
 liquid-cli [command] [args]
 ```
 

@@ -45,11 +45,8 @@ To set up a local development environment for the Liquid Labs CLI:
 git clone https://github.com/Liquid4All/on-prem-stack.git
 cd on-prem-stack/python_cli
 
-# Install the package in development mode with test dependencies
-pip install -e ".[test]"
-
-# Install code quality tools
-pip install black flake8
+# Install the package in development mode with test and development dependencies
+pip install -e ".[test,dev]"
 ```
 
 ### Running the CLI Locally

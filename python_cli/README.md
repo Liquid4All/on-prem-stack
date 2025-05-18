@@ -9,13 +9,6 @@ pip install liquidai-cli
 
 A `docker-compose.yaml` file is also shipped together with the package. Any changes to this file may cause some unexpected behaviors.
 
-### Run with `uv`
-`uv` allows to run this tool without installing the package into the system.
-
-```bash
-uv run --directory [PATH_TO_THIS_DIRECTORY] liquidai [command] [args]
-```
-
 ## Configuration
 
 The CLI uses a YAML configuration file (`liquid.yaml`) in your working directory. A default configuration will be created on first use, but you can customize it:
@@ -32,6 +25,70 @@ database:
   password: "local_password"
   port: 5432
   schema: "labs"
+```
+
+## Local Development
+
+### Setting Up the Development Environment
+
+To set up a local development environment for the Liquid Labs CLI:
+
+```bash
+git clone https://github.com/Liquid4All/on-prem-stack.git
+cd on-prem-stack/python_cli
+
+# Install the package in development mode with test and development dependencies
+pip install -e ".[test,dev]"
+```
+
+### Running the CLI Locally
+
+There are several ways to run the CLI locally:
+
+- Using Python module (recommended for development):
+```bash
+python -m liquidai_cli.cli [command] [args]
+```
+
+- Using `uv` without installing the package:
+```bash
+uv run --directory . -m liquidai_cli.cli [command] [args]
+```
+
+- Install the package in development mode with test dependencies
+```bash
+pip install -e ".[test,dev]"
+liquid-cli [command] [args]
+```
+
+### Running Tests
+
+To run tests for the Liquid Labs CLI:
+
+```bash
+# Run all tests with verbose output
+pytest -v
+
+# Run tests with coverage reporting
+pytest --cov=liquidai_cli
+
+# Run tests with coverage reporting and generate XML report (used in CI)
+pytest --cov=liquidai_cli --cov-report=xml
+```
+
+### Code Quality Checks
+
+Before submitting changes, make sure to run the following code quality checks:
+
+```bash
+# Check code formatting with black
+black . --check
+
+# Run linting with flake8
+flake8 .
+
+# You can also format your code automatically with black
+black .
 ```
 
 ## Usage

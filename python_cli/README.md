@@ -34,6 +34,73 @@ database:
   schema: "labs"
 ```
 
+## Local Development
+
+### Setting Up the Development Environment
+
+To set up a local development environment for the Liquid Labs CLI:
+
+```bash
+# Clone the repository (if you haven't already)
+git clone https://github.com/Liquid4All/on-prem-stack.git
+cd on-prem-stack/python_cli
+
+# Install the package in development mode with test dependencies
+pip install -e ".[test]"
+
+# Install code quality tools
+pip install black flake8
+```
+
+### Running the CLI Locally
+
+There are several ways to run the CLI locally:
+
+1. Using Python module (recommended for development):
+```bash
+python -m liquidai_cli.cli [command] [args]
+```
+
+2. Using `uv` without installing the package:
+```bash
+uv run --directory . -m liquidai_cli.cli [command] [args]
+```
+
+3. After installing the package with pip:
+```bash
+liquid-cli [command] [args]
+```
+
+### Running Tests
+
+To run tests for the Liquid Labs CLI:
+
+```bash
+# Run all tests with verbose output
+pytest -v
+
+# Run tests with coverage reporting
+pytest --cov=liquidai_cli
+
+# Run tests with coverage reporting and generate XML report (used in CI)
+pytest --cov=liquidai_cli --cov-report=xml
+```
+
+### Code Quality Checks
+
+Before submitting changes, make sure to run the following code quality checks:
+
+```bash
+# Check code formatting with black
+black . --check
+
+# Run linting with flake8
+flake8 .
+
+# You can also format your code automatically with black
+black .
+```
+
 ## Usage
 
 ### Stack Management

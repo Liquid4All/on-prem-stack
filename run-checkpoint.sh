@@ -141,7 +141,7 @@ docker run -d \
     --tensor-parallel-size 1 \
     --max-logprobs 0 \
     --dtype bfloat16 \
-    --enable-chunked-prefill false \
+    --no-enable-chunked-prefill \
     --gpu-memory-utilization $GPU_MEMORY_UTILIZATION \
     --max-num-seqs $MAX_NUM_SEQS \
     --max-model-len $MAX_MODEL_LEN \

@@ -1,5 +1,8 @@
 # Liquid Labs On-Prem Deployment
 
+> [!IMPORTANT]
+> This is the `lfm-v2` branch to run v2 model checkpoints. Only the `run-checkpoint.sh` has been updated. The other part of the on-prem stack may not work properly. Before running the v2 checkpoint, please ensure the `VLLM_VERSION` in `.env` has been updated to `dbc6f28958`.
+
 ## Prerequisites
 - Nvidia and CUDA driver
   - Run `nvidia-smi` to verify the driver installation.

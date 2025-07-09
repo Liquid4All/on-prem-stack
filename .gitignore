@@ -4,3 +4,4 @@ uv.lock
 local-files/*
 !local-files/.keep
 config.yaml
+models/

@@ -80,6 +80,7 @@ Currently, each on-prem stack can only run one model at a time. We will improve 
 | `switch-model.sh` | Script to switch the model to run, equivalent to `./launch.sh --switch-model` |
 | `run-vllm.sh` | Script to launch any model from Hugging Face |
 | `rm-vllm.sh` | Script to remove a model launched by `run-vllm.sh` |
+| `download-hf.sh` | Script to download a model checkpoint from Hugging Face |
 | `run-checkpoint.sh` | Script to serve fine-tuned Liquid model checkpoints |
 | `run-cf-tunnel.sh` | Script to run Cloudflare tunnel |
 | `purge.sh` | Script to remove all containers, volumes, and networks |
